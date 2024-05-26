@@ -1,18 +1,23 @@
-import { WaveGenerator } from "../systems/predefined_waves";
+import { WaveGenerator, WaveGroup, WaveState } from "../systems/predefined_waves";
 import { ScreenText } from "../systems/screen-text";
 import { Utils } from "../systems/utils";
 import { Enemies } from "./enemies";
+import { Location } from "../systems/location";
+import { EnemyMoveState } from "./enemy/enemyship";
 
 export class Wave {
-    private static wave: any = {};
+    private static wave?: WaveGroup;
     private static breath = 6000;
     private static waveOffset = 0;
     private static waveDirection = 1;
     private static ROWS = 5;
     private static COLS = 10;
-    private static center: any = {};
+    private static center: Location = {
+        x: 0.5,
+        y: 0.05,
+    };
     public static level = 1;
-    public static waveLoc: any = [];
+    public static waveLoc: Location[][] = [];
     private static pause = 0;
     private static launchNextGroup = false;
     private static launchedGroup = 0;
@@ -21,7 +26,7 @@ export class Wave {
     private static resetLocations() {
         Wave.waveLoc = [];
         for (let i = 0; i < Wave.ROWS; i++) {
-            let next: any = [];
+            let next: Location[] = [];
             for (let j = 0; j < Wave.COLS; j++) {
                 next.push({
                     x: (0.25) + j * ((0.5) / (Wave.COLS - 1)),
@@ -30,10 +35,6 @@ export class Wave {
             }
             Wave.waveLoc.push(next);
         }
-        Wave.center = {
-            x: 0.5,
-            y: 0.05,
-        };
     }
 
 
@@ -41,16 +42,16 @@ export class Wave {
      * Update function for a wave, moves all enemies and does location grid permutations
      */
     public static update(elapsedTime: number) {
-        if (Wave.pause <= 0 && Wave.wave.groups != undefined) {
+        if (Wave.pause <= 0 && Wave.wave?.groups != undefined) {
             if (Wave.launchNextGroup) {
-                let launched = true;
+                let launched : boolean = true;
                 for (let enemyI in Wave.wave.groups[Wave.launchedGroup]) {
                     let enemy = Wave.wave.groups[Wave.launchedGroup][enemyI];
-                    if (enemy.moveState <= 0 && !enemy.dirty) {
+                    if (enemy.moveState != EnemyMoveState.noUpdate && !enemy.dirty) {
                         launched = false;
                     }
-                    if (enemy.moveState == -1) {
-                        enemy.moveState = 0;
+                    if (enemy.moveState == EnemyMoveState.noUpdate) {
+                        enemy.moveState = EnemyMoveState.followingEntrancePath;
                     }
                 }
                 if (launched) {
@@ -60,13 +61,13 @@ export class Wave {
                     }
                 }
             }
-            if (Wave.wave.state == 0) {
-                Wave.wave.state = Math.floor(Math.random() * 2) + 1;
+            if (Wave.wave.state == WaveState.Stationary) {
+                Wave.wave.state = Math.random() > 0.5 ? WaveState.Breath : WaveState.Shake;
                 Wave.waveOffset = 0;
                 Wave.resetLocations();
-            } else if (Wave.wave.state == 1) {
+            } else if (Wave.wave.state == WaveState.Breath) {
                 Wave.breathe(elapsedTime);
-            } else if (Wave.wave.state == 2) {
+            } else if (Wave.wave.state == WaveState.Shake) {
                 Wave.shake(elapsedTime);
             }
         } else {
@@ -86,8 +87,8 @@ export class Wave {
                 let power = Utils.distBetween(Wave.waveLoc[i][j], Wave.center) / 1500;
 
                 if (Wave.waveOffset > Wave.breath) {
-                    if (Wave.waveOffset > Wave.breath * 2) {
-                        Wave.wave.state = 0;
+                    if (Wave.waveOffset > Wave.breath * 2 && Wave.wave !== undefined) {
+                        Wave.wave.state = WaveState.Stationary;
                     }
                     power = -power;
                 }
@@ -114,8 +115,8 @@ export class Wave {
                 Wave.waveLoc[i][j].x += elapsedTime * Wave.waveDirection / 10000;
             }
         }
-        if (Wave.waveOffset > Wave.breath && (Math.abs((Wave.waveLoc[Wave.ROWS - 1][Wave.COLS - 1].x + Wave.waveLoc[0][0].x) / 2 - (0.5)) < 0.01)) {
-            Wave.wave.state = 0;
+        if (Wave.wave !== undefined && Wave.waveOffset > Wave.breath && (Math.abs((Wave.waveLoc[Wave.ROWS - 1][Wave.COLS - 1].x + Wave.waveLoc[0][0].x) / 2 - (0.5)) < 0.01)) {
+            Wave.wave.state = WaveState.Stationary;
         }
     }
 

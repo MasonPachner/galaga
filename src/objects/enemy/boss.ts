@@ -39,7 +39,7 @@ export class BossShip extends EnemyShip {
             let enemy = Enemies.enemies[enemyI];
             if (enemy.formationLocation.x == this.formationLocation?.x &&
                 (enemy.formationLocation.y + 1 == this.formationLocation?.y || enemy.formationLocation.y - 1 == this.formationLocation?.y) &&
-                enemy.moveState == 2 && !enemy.dirty
+                enemy.moveState == EnemyMoveState.lockToFormation && !enemy.dirty
             ) {
                 enemy.overrideAttack = true;
                 this.buddies++;

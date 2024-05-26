@@ -1,8 +1,9 @@
+import { Ship } from "../objects/ship";
 import { Assets } from "./assets";
 import { Location } from "./location";
 
 export class Utils {
-    public static get canvas(): any { return document.getElementById('id-canvas');};
+    public static get canvas(): HTMLCanvasElement { return document.getElementById('id-canvas') as HTMLCanvasElement;};
     private static DIRECTIONS: any = {
         UP: "UP",
         DOWN: "DOWN",
@@ -114,7 +115,7 @@ export class Utils {
         }
     }
 
-    public static closestObjectDistance(loc1: Location, list: any[]) {
+    public static closestObjectDistance(loc1: Location, list: Ship[]) {
         let closest = Infinity;
         list.forEach(element => {
             closest = Math.min(closest, Utils.distBetween(loc1, element.location));

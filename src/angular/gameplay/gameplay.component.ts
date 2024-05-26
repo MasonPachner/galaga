@@ -3,7 +3,7 @@ import { Keyboard } from '../../systems/input-keyboard';
 import { Renderer } from '../../systems/renderer';
 import { Enemies } from '../../objects/enemies';
 import { Player } from '../../objects/player';
-import { Projectiles } from '../../objects/projectiles';
+import { Projectile, Projectiles } from '../../objects/projectiles';
 import { Wave } from '../../objects/wave';
 import { KeyBinding, Persitence } from '../../screens/persistance';
 import { GalagaScreen } from '../../screens/galagascreen';
@@ -72,7 +72,7 @@ export class GameplayComponent implements OnInit{
 
   public levelUp() {
     if (Enemies.enemies.length == 0) {
-      Projectiles.proj.forEach((e: any) => {
+      Projectiles.proj.forEach((e: Projectile) => {
         e.dirty = true;
       });
       this.level++;

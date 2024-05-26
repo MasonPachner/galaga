@@ -3,16 +3,25 @@ import { EnemyParams, EnemyShip } from "../objects/enemy/enemyship";
 import { Wave } from "../objects/wave";
 import { BezierCurve, Path, PathType, TypedBezier } from "./paths";
 
-export class WaveGenerator {
-    private static groupID = 0;
-    public static wave1() {
+type EnemyConstructor = (a: EnemyParams) => EnemyShip;
+export enum WaveState {
+    Stationary = "stationary", //0
+    Breath = "breath", //1
+    Shake = "shake", //2
+}
+export interface WaveGroup {
+    groups: EnemyShip[][];
+    state: WaveState;
+    attack: boolean;
+}
 
-        let groups: any = [];
-        let wave: any = {
-            state: 0,
-            attack: false
-        };
-        let group: any = [];
+
+export class WaveGenerator {
+    private static groupID: number = 0;
+
+    public static wave1(): WaveGroup {
+        let groups: EnemyShip[][] = [];
+        let group: EnemyShip[] = [];
         for (let i = 0; i < 6; i++) {
             group.push(Enemies.makeButterfly({
                 formationLocation: {
@@ -50,16 +59,15 @@ export class WaveGenerator {
             }));
         }
         groups.push(group);
-        wave.groups = groups;
-        return wave;
-    }
-    public static wave2() {
-        let groups: any = [];
-        let wave: any = {
-            state: 0,
-            attack: false
+        return  {
+            state: WaveState.Stationary,
+            attack: false,
+            groups: groups,
         };
-        let group: any = [];
+    }
+    public static wave2() :WaveGroup{
+        let groups: EnemyShip[][] = [];
+        let group: EnemyShip[] = [];
         for (let i = 0; i < 8; i++) {
             group.push(Enemies.makeBee({
                 formationLocation: {
@@ -98,18 +106,18 @@ export class WaveGenerator {
             }));
         }
         groups.push(group);
-        wave.groups = groups;
-        return wave;
-    }
-    public static wave3() {
 
-        let groups: any = [];
-        let wave: any = {
-            state: 0,
-            attack: false
+        return {
+            state: WaveState.Stationary,
+            attack: false,
+            groups: groups,
         };
+    }
+    public static wave3() :WaveGroup{
 
-        let group: any = [];
+        let groups: EnemyShip[][] = [];
+
+        let group: EnemyShip[] = [];
         for (let i = 0; i < 20; i++) {
             group.push(Enemies.makeButterfly({
                 formationLocation: {
@@ -132,8 +140,11 @@ export class WaveGenerator {
             }));
         }
         groups.push(group);
-        wave.groups = groups;
-        return wave;
+        return  {
+            state: WaveState.Stationary,
+            attack: false,
+            groups : groups,
+        };;
     }
 
     public static getPath(index: number, path: TypedBezier, pathType: PathType): BezierCurve {
@@ -160,15 +171,11 @@ export class WaveGenerator {
         }
         return initialId;
     }
-    public static randomWave(width: number, height: number) {
+    public static randomWave(width: number, height: number) :WaveGroup{
         let groupCount = 5;
-        let wave: any = {
-            state: 0,
-            attack: false
-        };
-        let groups: any = [];
+        let groups: EnemyShip[][] = [];
 
-        let enemyTypes: ((a: EnemyParams) => EnemyShip)[] = [
+        let enemyTypes: (EnemyConstructor)[] = [
             Enemies.makeBoss,
             Enemies.makeButterfly, Enemies.makeButterfly,
             Enemies.makeBee, Enemies.makeBee,
@@ -177,7 +184,7 @@ export class WaveGenerator {
         for (let i = 0; i < groupCount; i++) {
             const paths = Path.getPathOptions(Wave.isChallengeLevel());
             const path: TypedBezier = paths[Math.floor(Math.random() * paths.length)]; // What path set to choose from
-            let group: any = [];
+            let group: EnemyShip[] = [];
             // let enemyType = enemyTypes[Math.floor(Math.random()*enemyTypes.length)]; // Pick a random enemy
             let enemyType = enemyTypes[i];
             let spec: any = {};
@@ -203,14 +210,17 @@ export class WaveGenerator {
                     y: i,
                     x: Wave.isChallengeLevel() ? 1 : ordering[j - (Math.floor(width / 2) - groupCount)],
                 };
-                group.push(enemyType(spec));
+                group.push(enemyType(spec as EnemyParams));
             }
             groups.push(group);
         }
-        wave.groups = groups;
-        return wave;
+        return  {
+            state: WaveState.Stationary,
+            attack: false,
+            groups: groups,
+        };
     }
-    public static getGroupID() {
+    public static getGroupID(): number {
         if (WaveGenerator.groupID > 50) { // Shouldn't need more than 6.
             WaveGenerator.groupID = 0;
         }

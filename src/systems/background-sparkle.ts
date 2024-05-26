@@ -10,7 +10,7 @@ export class Sparkle {
     }
 
     private static readonly scales = [[5, 7], [2.5, 4]]; // This should draw a star with 4 pokes per number in this at radius*number
-    public static newSparkle(init?: any) {
+    public static newSparkle(init?: boolean) {
         Sparkle.sparkles.push({
             x: Math.random(),
             y: init ? Math.random() : 0,

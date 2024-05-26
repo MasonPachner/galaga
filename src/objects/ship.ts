@@ -10,7 +10,7 @@ export abstract class Ship {
     public killedByPlayer: boolean = false;
     public static readonly size: number = 0.02;
     public rotation: number = Math.PI / 2;
-    public thrustVector: any = { x: 0, y: 0 };
+    public thrustVector: Location = { x: 0, y: 0 };
     public speed: number = 0;
     public spinTime: number = 2500;
 

@@ -18,7 +18,6 @@ export interface BeamData {
 }
 
 export class PlayerShip extends Ship {
-    public thrust: any = [];
     public static attactDelayTotal = 300;
     public attackDelay = PlayerShip.attactDelayTotal;
     public shots: number = 0;

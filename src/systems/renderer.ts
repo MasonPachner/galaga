@@ -1,8 +1,9 @@
 import { Assets } from "./assets";
 import { Utils } from "./utils";
+import { Location } from "../systems/location";
 
 export class Renderer {
-    private static get context(){return Utils.canvas.getContext('2d')};
+    private static get context(){return Utils.canvas.getContext('2d')!};
     public static scaleS() {
         return Math.max(Utils.canvas.width, Utils.canvas.height);
     }
@@ -29,7 +30,7 @@ export class Renderer {
         Renderer.context.arc(x * Utils.canvas.width, y * Utils.canvas.height, radius * Renderer.scaleL(), direction - arcSize / 2, direction + arcSize / 2);
         Renderer.context.stroke();
     }
-    public static fillPath(lines: any[], color: string) {
+    public static fillPath(lines: {p1: Location, p2: Location}[], color: string) {
         Renderer.context.save();
         Renderer.context.beginPath();
         //context.strokeStyle = 'rgba(0,0,0,1)';
@@ -65,7 +66,7 @@ export class Renderer {
         Renderer.context.restore();
     }
     public static drawImageRaw(image: string, x: number, y: number, width: number, height: number): void {
-        Renderer.context.drawImage(Assets.images.get(image), x * Utils.canvas.width, y * Utils.canvas.height, width * Utils.canvas.width, height * Utils.canvas.height);
+        Renderer.context.drawImage(Assets.images.get(image)!, x * Utils.canvas.width, y * Utils.canvas.height, width * Utils.canvas.width, height * Utils.canvas.height);
     }
 
     public static levelTags = [1, 5, 10, 20, 30, 50];
@@ -87,7 +88,7 @@ export class Renderer {
         }
     }
 
-    public static fillRect(x: number, y: number, width: number, height: number, color: any) {
+    public static fillRect(x: number, y: number, width: number, height: number, color: string) {
         Renderer.context.fillStyle = color;
         Renderer.context.fillRect(x * Utils.canvas.width, y * Utils.canvas.height, width, height);
     }

@@ -17,7 +17,7 @@ import { Ship } from "./ship";
 import { Wave } from "./wave";
 
 export class Enemies {
-    public static enemies: any = [];
+    public static enemies: EnemyShip[] = [];
     public static level = 0;
     public static canAttack = false;
     public static id = 0;
@@ -57,7 +57,7 @@ export class Enemies {
         }
     }
     // Standard dude, can team up with a Boss
-    public static makeButterfly(spec: EnemyParams) {
+    public static makeButterfly(spec: EnemyParams) : ButterflyShip {
         const butterfly = new ButterflyShip(spec);
         Enemies.enemies.push(butterfly);
         return butterfly;
@@ -239,22 +239,27 @@ export class Enemies {
         });
     }
 
+    private static readonly validAttackStates = [
+        EnemyMoveState.noUpdate,
+        EnemyMoveState.followingEntrancePath ,
+        EnemyMoveState.returnToFormation ,
+        EnemyMoveState.lockToFormation ,
+    ]
+
     /**
      * Update function moves all enemies
      */
     public static update(elapsedTime: number) {
         let checkAttack = true;
-        let states = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         for (let e in Enemies.enemies) {
             let enemy = Enemies.enemies[e];
-            states[enemy.moveState]++;
-            checkAttack = checkAttack && (enemy.moveState <= 2 || !enemy.canAttack);
+            checkAttack = checkAttack && (Enemies.validAttackStates.includes(enemy.moveState) || !enemy.canAttack);
             Enemies.updateLocation(enemy, elapsedTime);
             if (!Enemies.isChallengeLevel())
-                enemy.attack(elapsedTime, enemy);
+                enemy.attack(elapsedTime);
             if (enemy.owner) {
                 if (enemy.owner.dirty) {
-                    enemy.moveState = 4;
+                    enemy.moveState = EnemyMoveState.spinning;
                 }
             }
         }
@@ -272,7 +277,7 @@ export class Enemies {
     }
 
     public static clean() {
-        let cleanUfos: any = [];
+        let cleanUfos: EnemyShip[] = [];
         Enemies.enemies.forEach((e: EnemyShip) => {
             if (!e.dirty) {
                 cleanUfos.push(e);

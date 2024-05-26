@@ -12,12 +12,12 @@ export enum EnemyMoveState {
     noUpdate = "noupdate", // -1
     followingEntrancePath = "FollowingEntrancePath", // 0
     returnToFormation = "ReturnToFormation", //1
-    alignInFormation = "AlignInFormation", // 7
     lockToFormation = "LockToFormation", // 2
     followingAttackPath = "FollowingAttackPath", // 3
     spinning = "Spinning", // 4
     tractoring = "Tractoring", // 5
     following = "Following", // 6
+    alignInFormation = "AlignInFormation", // 7
 }
 
 export interface EnemyParams {

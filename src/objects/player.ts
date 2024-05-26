@@ -78,7 +78,7 @@ export class Player {
             Player.newLife = true;
             Player.lives++;
         }
-        let clean: any = [];
+        let clean: PlayerShip[] = [];
         for (let playerI in Player.players) {
             let player = Player.players[playerI];
             if (!player.dirty) clean.push(player);
@@ -131,10 +131,10 @@ export class Player {
         //Calculate bad zones -enemies
         for (let enemyI in Enemies.enemies) {
             let enemy = Enemies.enemies[enemyI];
-            if (enemy.location.y > 0.6 && (enemy.moveState == 3 || enemy.moveState == 5)) { // Don't get hit by badguys
+            if (enemy.location.y > 0.6 && (enemy.moveState == EnemyMoveState.followingAttackPath || enemy.moveState == EnemyMoveState.tractoring)) { // Don't get hit by badguys
                 Player.bounds.push({
-                    l: enemy.location.x - (enemy.size + Ship.size * 2.5),
-                    u: enemy.location.x + enemy.size + Ship.size * 2.5,
+                    l: enemy.location.x - (Ship.size + Ship.size * 2.5),
+                    u: enemy.location.x + Ship.size + Ship.size * 2.5,
                     loc: enemy.location.x,
                     distance: Math.abs(Player.players[0].location.y - enemy.location.y) / 2
                 });

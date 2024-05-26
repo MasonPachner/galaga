@@ -9,11 +9,27 @@ interface ParticleSpec {
     color: string;
     count: number;
 }
-export class ParticleSystem {
-    private static systems: any = [];
+ interface Particle {
+    center: { x: number, y: number };
+    size: { x: number, y: number };
+    direction: { x: number, y: number };
+    speed: number;
+    rotation: number;
+    lifetime: number;
+    alive: number;
+    color: string;
+ }
 
-    public static newSystem(spec: any, arc: Arc | undefined) {
-        let system: any = {
+ interface ParticleSystemInstance {
+    particles: Particle[];
+    spec: ParticleSpec;
+ }
+
+export class ParticleSystem {
+    private static systems: ParticleSystemInstance[] = [];
+
+    public static newSystem(spec: ParticleSpec, arc: Arc | undefined) {
+        let system: ParticleSystemInstance = {
             particles: [],
             spec: spec,
         };
@@ -23,9 +39,9 @@ export class ParticleSystem {
         ParticleSystem.systems.push(system);
     }
 
-    public static create(spec: ParticleSpec, arc: Arc | undefined): any {
+    public static create(spec: ParticleSpec, arc: Arc | undefined): Particle {
         let size = Random.nextGaussian(spec.size.mean, spec.size.stdev);
-        let p: any = {
+        let p: Particle = {
             center: { x: spec.center.x, y: spec.center.y },
             size: { x: Math.max(0, size), y: size },
             direction: arc == undefined ? Random.nextCircleVector() : Random.nextArcVector(arc.range, arc.direction),
@@ -40,10 +56,10 @@ export class ParticleSystem {
 
     public static update(elapsedTime: number) {
         elapsedTime = elapsedTime / 1000;
-        let keepSys: any = [];
+        let keepSys: ParticleSystemInstance[] = [];
         for (let systemI in ParticleSystem.systems) {
             let nextSet = ParticleSystem.systems[systemI].particles;
-            let keep: any = [];
+            let keep: Particle[] = [];
             if (nextSet.length > 0) {
                 keepSys.push(ParticleSystem.systems[systemI]);
             }
