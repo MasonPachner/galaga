@@ -3,6 +3,7 @@ import { EnemyMoveState, EnemyShip } from "../objects/enemy/enemyship";
 import { Player } from "../objects/player";
 import { PlayerMoveState } from "../objects/playership";
 import { Projectiles } from "../objects/projectiles";
+import { Ship } from "../objects/ship";
 import { Wave } from "../objects/wave";
 import { Assets } from "./assets";
 import { ScreenText } from "./screen-text";
@@ -18,7 +19,7 @@ export class Collisions {
             for (let pI in Projectiles.proj) {
                 let pro = Projectiles.proj[pI];
                 if (pro.playerDamage) continue;
-                if (Utils.distBetween(enemy.location, pro.location) <= pro.size + enemy.size && (enemy.moveState != EnemyMoveState.spinning)) {
+                if (Utils.distBetween(enemy.location, pro.location) <= pro.size + Ship.size && (enemy.moveState != EnemyMoveState.spinning)) {
                     pro.dirty = true;
                     enemy.setDirty(true);
                     pro.owner.waveHits += 1;
@@ -50,12 +51,10 @@ export class Collisions {
             }
             for (let playerI in Player.players) {
                 let nextP = Player.players[playerI];
-                if (Utils.distBetween(nextP.location, enemy.location) <= enemy.size + nextP.size) {
+                if (Utils.distBetween(nextP.location, enemy.location) <= Ship.size + Ship.size) {
                     if (nextP.spawnProtection < 0 && (nextP.moveState == PlayerMoveState.playerControl || nextP.moveState == PlayerMoveState.returnToPlayer)) {
                         nextP.setDirty();
-                        let v = Assets.assets.playerExplosion.cloneNode();
-                        v.volume = 0.3;
-                        Utils.safePlay(v);
+                        Utils.burstPlay(Assets.playerExplosion, 0.3);
                         if (Player.players.length == 1)
                             Enemies.canAttack = false;
                     }
@@ -69,23 +68,21 @@ export class Collisions {
             for (let playerI in Player.players) {
                 let nextP = Player.players[playerI];
                 if (pro.beam) {
-                    if ((nextP.moveState == PlayerMoveState.playerControl || nextP.moveState == PlayerMoveState.moveToSpot) && nextP.spawnProtection < 0 && pro.collidingWithPlayer(nextP.location, nextP.size)) {
+                    if ((nextP.moveState == PlayerMoveState.playerControl || nextP.moveState == PlayerMoveState.moveToSpot) && nextP.spawnProtection < 0 && pro.collidingWithPlayer(nextP.location, Ship.size)) {
                         nextP.moveState = PlayerMoveState.beingBeamed;
                         nextP.beamData = {
                             location: {
                                 x: pro.owner.location.x,
-                                y: pro.owner.location.y + pro.owner.size + nextP.size * 1.5,
+                                y: pro.owner.location.y + pro.owner.size + Ship.size * 1.5,
                             },
                             owner: pro.owner
                         };
                     }
                 } else {
-                    if (pro.playerDamage && nextP.spawnProtection < 0 && Utils.distBetween(nextP.location, pro.location) <= pro.size + nextP.size) {
+                    if (pro.playerDamage && nextP.spawnProtection < 0 && Utils.distBetween(nextP.location, pro.location) <= pro.size + Ship.size) {
                         pro.dirty = true;
                         nextP.setDirty();
-                        let v = Assets.assets.playerExplosion.cloneNode();
-                        v.volume = 0.3;
-                        Utils.safePlay(v);
+                        Utils.burstPlay(Assets.playerExplosion, 0.3);
                         if (Player.players.length == 1)
                             Enemies.canAttack = false;
                     }

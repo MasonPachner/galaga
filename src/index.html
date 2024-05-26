@@ -1,75 +1,13 @@
-<html>
-
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Galaga Game</title>
-    <link rel="stylesheet" type="text/css" href="/styles/styles.css">
+  <meta charset="utf-8">
+  <title>Galaga</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.png">
 </head>
-
-<body id="id-body">
-    <div id="game">
-        <div id="main-menu" class="screen">
-            <ul class="menu">
-                <li><button id="id-new-game">New Game</button></li>
-                <li><button id="id-high-scores">High Scores</button></li>
-                <li><button id="id-help">Controls</button></li>
-                <li><button id="id-about">Credits</button></li>
-            </ul>
-        </div>
-        <div id="game-play" class="screen">
-            <div style="position: relative;">
-                <canvas id="id-canvas"></canvas>
-                <ul id="id-overlay" class="overlay">
-                    <li>
-                        <button id="id-continue">Continue</button>
-                    </li>
-                    <li>
-                        <button id="id-quit">Quit</button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div id="high-scores" class="screen">
-            <h1>High Scores</h1>
-            <ul id="scorelist" class="table">
-                <li>"No high scores recorded"</li>
-            </ul>
-            <ul class="menu">
-                <li><button id="id-high-scores-back">Back</button></li>
-            </ul>
-        </div>
-        <div id="help" class="screen">
-            <h1>Controls</h1>
-            <p>Reselect keys by pressing the button and then pressing the keyboard key</p>
-            <ul class="menu">
-                <li><button id="id-left"></button></li>
-            </ul>
-            <ul class="menu">
-                <li><button id="id-right"></button></li>
-            </ul>
-            <ul class="menu">
-                <li><button id="id-shoot"></button></li>
-            </ul>
-            <ul class="menu">
-                <li><button id="id-pause"></button></li>
-            </ul>
-            <ul class="menu">
-                <li><button id="id-help-back">Back</button></li>
-            </ul>
-            <p id='id-info'></p>
-        </div>
-        <div id="about" class="screen">
-            <h1>Credits</h1>
-            <p>Developed by</p>
-            <p>Mason Pachner</p>
-
-            <p>Tested by</p>
-            <p>Mason Pachner, Rafferty Walker</p>
-            <ul class="menu">
-                <li><button id="id-about-back">Back</button></li>
-            </ul>
-        </div>
-    </div>
-    <script src="../dist/index.js" type="module"></script>
+<body>
+  <app-root></app-root>
 </body>
-
 </html>

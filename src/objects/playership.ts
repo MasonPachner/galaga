@@ -19,12 +19,12 @@ export interface BeamData {
 
 export class PlayerShip extends Ship {
     public thrust: any = [];
-    public attackDelay = Player.attackDelay;
+    public static attactDelayTotal = 300;
+    public attackDelay = PlayerShip.attactDelayTotal;
     public waveHits: number = 0;
     public shots: number = 0;
     public spawnProtection = 5000;
     public beamData?: BeamData;
-    public override readonly images = [Player.playerImage];
     public moveState: string = PlayerMoveState.playerControl;
     public projectileQueue: boolean = true;
     public override location: Location = {
@@ -35,7 +35,7 @@ export class PlayerShip extends Ship {
     public handleDirty(): void {
         // todo
     }
-    public setDirty() {
+    public override setDirty() {
         this.dirty = true;
         ParticleSystem.playerExplosion(this.location.x, this.location.y);
     };

@@ -13,6 +13,7 @@ import { EnemyMoveState, EnemyParams, EnemyShip } from "./enemy/enemyship";
 import { TransformShip } from "./enemy/transform";
 import { Player } from "./player";
 import { Projectiles } from "./projectiles";
+import { Ship } from "./ship";
 import { Wave } from "./wave";
 
 export class Enemies {
@@ -27,23 +28,16 @@ export class Enemies {
     public static flagImage = Assets.assets.boss1;
     public static flagImage2 = Assets.assets.boss2;
     public static badPlayerImage = Assets.assets.capture;
-
-    public static entImage = Assets.assets.enterprise;
-    public static satImage = Assets.assets.satellite;
-    public static dragImage = Assets.assets.dragonfly;
-    public static challengeImages = [
+    public static challengeImages:string[][] = [
         [Enemies.entImage],
         [Enemies.satImage],
         [Enemies.dragImage]
     ];
 
-    public static scorpImage = Assets.assets.scorpion;
-    public static flagGImage = Assets.assets.flagship;
-    public static bossImage = Assets.assets.bosconian;
-    public static tranformImages = [
-        [Enemies.scorpImage],
-        [Enemies.bossImage],
-        [Enemies.flagGImage],
+    public static tranformImages:string[][] = [
+        [Assets.scorpion],
+        [Assets.bosconian],
+        [Assets.flagship],
     ];
 
     // Fun ships, can't attack, only on challenging waves
@@ -113,9 +107,7 @@ export class Enemies {
                 Projectiles.makeBeam(enemy.rotation, enemy.location, enemy, Math.PI / 16, enemy.beamGroup);
             }
             if (enemy.projectiles == 2) {
-                let v = Assets.assets.tractorBeam.cloneNode();
-                v.volume = 0.4;
-                Utils.safePlay(v);
+                Utils.burstPlay(Assets.tractorBeam,0.4);
             }
             enemy.attackCooldown = 0;
             enemy.projectiles++;
@@ -158,7 +150,7 @@ export class Enemies {
             enemy.rotation = Utils.angleBetween(Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x], enemy.location);
             enemy.location.x += Math.cos(enemy.rotation - Math.PI) * elapsedTime * 0.0002;
             enemy.location.y += Math.sin(enemy.rotation - Math.PI) * elapsedTime * 0.0002;
-            if (Utils.distBetween(enemy.location, Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x]) < enemy.size / 2) {
+            if (Utils.distBetween(enemy.location, Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x]) < Ship.size / 2) {
                 enemy.location.x = Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x].x;
                 enemy.location.y = Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x].y;
                 enemy.moveState = EnemyMoveState.alignInFormation;
@@ -243,10 +235,10 @@ export class Enemies {
         enemy.rotation = enemy.owner.rotation;
         let locToBe = {
             x: enemy.owner.location.x,
-            y: enemy.owner.location.y - enemy.size - enemy.owner.size * 1.5
+            y: enemy.owner.location.y - Ship.size - Ship.size * 1.5
         };
         let moveRotation = Utils.angleBetween(enemy.location, locToBe);
-        if (Utils.distBetween(enemy.location, locToBe) < enemy.size / 2) {
+        if (Utils.distBetween(enemy.location, locToBe) < Ship.size / 2) {
             enemy.location.x = locToBe.x;
             enemy.location.y = locToBe.y;
         } else {
@@ -259,7 +251,7 @@ export class Enemies {
     public static render() {
         Enemies.enemies.forEach((e: EnemyShip) => {
             // meoww MyGame.renderer.fillCircle(e.location.x,e.location.y,e.size,'rgba(255,0,0,1)');
-            Renderer.drawImage(e.images[e.lives - 1], e.location.x, e.location.y, e.size, e.size, e.rotation - Math.PI / 2);
+            Renderer.drawImage(e.images[e.lives - 1], e.location.x, e.location.y, Ship.size, Ship.size, e.rotation - Math.PI / 2);
         });
     }
 

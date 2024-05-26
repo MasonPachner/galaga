@@ -1,0 +1,6 @@
+
+<ul class="menu">
+    <li *ngFor="let route of routes">
+        <galaga-button [text]="route.name" (onClick)="navigateTo(route.route)"></galaga-button> 
+    </li>
+</ul>

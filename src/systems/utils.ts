@@ -2,11 +2,11 @@ import { Assets } from "./assets";
 import { Location } from "./location";
 
 export class Utils {
-    public static canvas: any = document.getElementById('id-canvas');
+    public static get canvas(): any { return document.getElementById('id-canvas');};
     private static DIRECTIONS: any = {
         UP: "UP",
         DOWN: "DOWN",
-        LEFT: "LEFT",
+        LEFT: "LEFT", 
         RIGHT: "RIGHT",
     };
 
@@ -102,8 +102,11 @@ export class Utils {
         return array;
     }
     //________________________________________________________________________________________
-
-    public static safePlay(audio: any) {
+    public static burstPlay(audio: string, volume: number = 1) {
+        Assets.audio.get(audio)!.play();
+    }
+    public static safePlay(audio: string) {
+        Assets.audio.get(audio)!.play();
         var playPromise = audio.play();
         if (playPromise !== undefined) {
             playPromise.then((e: Event) => { }).catch((error: any) => {
@@ -122,11 +125,11 @@ export class Utils {
 
 
     public static loadAudio() {
-        Assets.assets.playerLaser.volume = 0.4;
-        Assets.assets.playerExplosion.volume = 0.8;
+        // Assets.audio.get('playerLaser')!.volume = 0.4;
+        // Assets.audio.get('playerExplosion')!.volume = 0.8;
         //MyGame.assets.enemyExplosion.volume =0.5;
-        Assets.assets.tractorBeam.volume = 0.5;
-        Assets.assets.enemyLaser.volume = 1;
-        Assets.assets.music.volume = 0.9;
+        // Assets.audio.get('tractorBeam')!.volume = 0.5;
+        // Assets.audio.get('enemyLaser')!.volume = 1;
+        // Assets.audio.get('music')!.volume = 0.9;
     }
 }

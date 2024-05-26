@@ -1,0 +1,11 @@
+
+<h1>Controls</h1>
+<p>Reselect keys by pressing the button and then pressing the keyboard key</p>
+
+<ul>
+    <li *ngFor="let key of keys">
+        <galaga-button text="key + ': ' + getCurrentBinding(key) " (onClick)="markKeyForChange(key)"></galaga-button>
+    </li>
+</ul>
+<galaga-button text="Back" (onClick)="returnToMenu()"></galaga-button>
+<p *ngIf="toChange !== undefined">{{getChangeBindingMessage(toChange)}}</p>

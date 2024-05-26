@@ -42,10 +42,11 @@ export abstract class EnemyShip extends Ship {
     public currentTime = 0;
     public attackCooldown = 0;
     public attackDelay = 100;
-    public projectiles = 2;
+    public override projectiles = 2;
     public timeToFinish = 0;
     public beamGroup = ++Enemies.id;
-    public killedByPlayer = false;
+    public override killedByPlayer = false;
+    public abstract readonly images: any[];
     public isTractor = false;
     public formationLocation: Location;
     public formationEntrance?: BezierCurve;

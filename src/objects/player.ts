@@ -1,4 +1,4 @@
-import { Persitence } from "../screens/galaga";
+import { Persitence } from "../screens/persistance";
 import { Assets } from "../systems/assets";
 import { ParticleSystem } from "../systems/particle-system";
 import { Renderer } from "../systems/renderer";
@@ -19,13 +19,10 @@ export interface Bounds {
 
 export class Player {
 
-    public static playerY = 0.90;
-    public static attackDelay = 300;
+    public static playerY: number = 0.90;
     public static lives = 2;
-    public static playerImage() {
-        return Assets.assets.fighter;
-    }
-    public static players: PlayerShip[] = [new PlayerShip()];
+    public static playerImage = Assets.fighter;
+    public static players: PlayerShip[] = [];
     public static newLife = false;
     public static shots = 0;
     public static totalHits = 0;
@@ -35,7 +32,6 @@ export class Player {
     public static nextLife = 20000;
     public static thrust: any = [];
     public static target: any = null;
-    public static size = Player.players[0].size;
     public static colors = ['rgba(255,255,0,1)', 'rgba(255, 0, 0,1)', 'rgba(255, 0, 255,1)', 'rgba(0, 0, 255,1)', 'rgba(0, 255, 255,1)', 'rgba(0, 255, 0,1)'];
     public static dontBounce = 400;
     public static safeX = 0;
@@ -65,7 +61,7 @@ export class Player {
             if (player.attackDelay > 0 && !player.projectileQueue) {
                 player.attackDelay -= elapsedTime;
             } else {
-                player.attackDelay = Player.attackDelay;
+                player.attackDelay = PlayerShip.attactDelayTotal;
                 player.projectileQueue = true;
             }
             if (player.spawnProtection > 0) {
@@ -106,19 +102,19 @@ export class Player {
         //Calculate bad zones - projectiles
         for (let proI in Projectiles.proj) {
             let pro = Projectiles.proj[proI];
-            if (pro.playerDamage && (pro.location.y < (Player.playerY + Player.size * 2))) {
+            if (pro.playerDamage && (pro.location.y < (Player.playerY + Ship.size * 2))) {
                 if (!pro.beam) {
                     Player.bounds.push({
-                        l: pro.target.x - (Math.abs(pro.range) + Player.size * 1.5),
-                        u: pro.target.x + Math.abs(pro.range) + Player.size * 1.5,
+                        l: pro.target.x - (Math.abs(pro.range) + Ship.size * 1.5),
+                        u: pro.target.x + Math.abs(pro.range) + Ship.size * 1.5,
                         loc: pro.target.x,
                         distance: Math.abs(pro.location.y - Player.playerY)
                     });
                 } else {
                     let diff = Math.abs(Math.cos(pro.rotation - (pro.arcSize / 2)) * pro.size);
                     Player.bounds.push({
-                        l: pro.location.x - diff - Player.size * 2.5,
-                        u: pro.location.x + diff + Player.size * 2.5,
+                        l: pro.location.x - diff - Ship.size * 2.5,
+                        u: pro.location.x + diff + Ship.size * 2.5,
                         loc: pro.location.x,
                         distance: Math.abs(Player.playerY - (pro.location.y + pro.size))
                     });
@@ -131,8 +127,8 @@ export class Player {
             let enemy = Enemies.enemies[enemyI];
             if (enemy.location.y > 0.6 && (enemy.moveState == 3 || enemy.moveState == 5)) { // Don't get hit by badguys
                 Player.bounds.push({
-                    l: enemy.location.x - (enemy.size + Player.size * 2.5),
-                    u: enemy.location.x + enemy.size + Player.size * 2.5,
+                    l: enemy.location.x - (enemy.size + Ship.size * 2.5),
+                    u: enemy.location.x + enemy.size + Ship.size * 2.5,
                     loc: enemy.location.x,
                     distance: Math.abs(Player.players[0].location.y - enemy.location.y) / 2
                 });
@@ -178,13 +174,13 @@ export class Player {
             let highDanger = 0;
             for (let badI in Player.bounds) {
                 let bad = Player.bounds[badI];
-                if (bad.l < 0.001 || (bad.distance < Player.size * 3 && bad.loc < Player.players[0].location.x)) {
+                if (bad.l < 0.001 || (bad.distance < Ship.size * 3 && bad.loc < Player.players[0].location.x)) {
                     bad.l = -1;
                 }
-                if (bad.u > 0.999 || (bad.distance < Player.size * 3 && bad.loc >= Player.players[0].location.x)) {
+                if (bad.u > 0.999 || (bad.distance < Ship.size * 3 && bad.loc >= Player.players[0].location.x)) {
                     bad.u = 2;
                 }
-                if (bad.distance < Player.size * 2 && bestLoc < bad.u && bestLoc > bad.l) {
+                if (bad.distance < Ship.size * 2 && bestLoc < bad.u && bestLoc > bad.l) {
                     let distLo = Math.abs(Player.players[0].location.x - bad.l);
                     let distHi = Math.abs(Player.players[0].location.x - bad.u);
                     if (distLo < best && bad.l >= low) {
@@ -259,7 +255,7 @@ export class Player {
                 };
                 player.rotation = Math.PI / 2;
             }
-            if (Utils.distBetween(player.location, player.beamData.location) < player.size || player.location.y > Player.playerY) {
+            if (Utils.distBetween(player.location, player.beamData.location) < Ship.size || player.location.y > Player.playerY) {
                 player.location.x = player.beamData.location.x;
                 player.location.y = player.beamData.location.y;
                 if (!player.beamData.owner.dirty) { // Tracted!
@@ -299,32 +295,32 @@ export class Player {
             Enemies.canAttack = false;
             let index = Player.getPlayerIndex(player);
             let togo = {
-                x: Player.players[0].location.x + (2 * Player.size) * (index),
+                x: Player.players[0].location.x + (2 * Ship.size) * (index),
                 y: Player.playerY,
             };
             let rotation = Utils.angleBetween(player.location, togo);
             player.location.x += Math.cos(rotation) * elapsedTime / 7000;
             player.location.y += Math.sin(rotation) * elapsedTime / 7000;
-            if (Utils.distBetween(player.location, togo) < player.size / 2 || player.location.y > Player.playerY) {
+            if (Utils.distBetween(player.location, togo) < Ship.size / 2 || player.location.y > Player.playerY) {
                 player.location.x = togo.x;
                 player.location.y = togo.y;
                 player.moveState = PlayerMoveState.playerControl;
             }
         } else if (player.moveState == PlayerMoveState.moveToSpot) { // move to the playerMove spot
             let index = Player.getPlayerIndex(player);
-            if (Math.abs(Player.players[0].location.x - Player.safeX) < player.size / 2) {
-                player.location.x = Player.safeX + (2 * player.size) * (index);
+            if (Math.abs(Player.players[0].location.x - Player.safeX) < Ship.size / 2) {
+                player.location.x = Player.safeX + (2 * Ship.size) * (index);
             } else if (index == 0) {
                 player.location.x += ((player.location.x > Player.safeX ? -elapsedTime : elapsedTime) / 1000);
             } else {
-                player.location.x = Player.players[index - 1].location.x + (2 * player.size + 5);
+                player.location.x = Player.players[index - 1].location.x + (2 * Ship.size + 5);
             }
         }
         //Bounds check
 
         let index = Player.getPlayerIndex(player);
-        player.location.x = Math.max(player.location.x, (player.size + 0.01) * (index + 1)); // Left side
-        player.location.x = Math.min(player.location.x, 1 - ((player.size + 0.01) * (Player.players.length - index))); //Right side
+        player.location.x = Math.max(player.location.x, (Ship.size + 0.01) * (index + 1)); // Left side
+        player.location.x = Math.min(player.location.x, 1 - ((Ship.size + 0.01) * (Player.players.length - index))); //Right side
 
     }
 
@@ -332,9 +328,9 @@ export class Player {
         for (let playerI in Player.players) {
             let player = Player.players[playerI];
             if (player.spawnProtection > 0) {
-                Renderer.fillCircle(player.location.x, player.location.y, player.size, "rgba(0,140,0,1)");
+                Renderer.fillCircle(player.location.x, player.location.y, Ship.size, "rgba(0,140,0,1)");
             }
-            Renderer.drawImage(Player.playerImage, player.location.x, player.location.y, player.size, player.size, player.rotation - Math.PI / 2);
+            Renderer.drawImage(Player.playerImage, player.location.x, player.location.y, Ship.size, Ship.size, player.rotation - Math.PI / 2);
         }
         let size = 0.02;
         for (let i = 0; i < Player.lives; i++) {

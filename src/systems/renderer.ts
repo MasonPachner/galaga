@@ -1,10 +1,8 @@
 import { Assets } from "./assets";
 import { Utils } from "./utils";
 
-Utils.canvas.width = window.innerWidth;
-Utils.canvas.height = window.innerHeight;
 export class Renderer {
-    private static context = Utils.canvas.getContext('2d');
+    private static get context(){return Utils.canvas.getContext('2d')};
     public static scaleS() {
         return Math.max(Utils.canvas.width, Utils.canvas.height);
     }
@@ -49,31 +47,27 @@ export class Renderer {
         Renderer.context.restore();
     }
 
-    public static drawImage(image: any, x: number, y: number, width: number, height: number, rotation: number): void {
+    public static drawImage(image: string, x: number, y: number, width: number, height: number, rotation: number): void {
+        if(image == null){
+            throw new Error("Image is null");
+        }
         Renderer.context.save();
         Renderer.context.translate(x * Utils.canvas.width, y * Utils.canvas.height);
         Renderer.context.rotate(rotation);
         Renderer.context.translate(-x * Utils.canvas.width, -y * Utils.canvas.height);
         Renderer.context.drawImage(
-            image,
+            Assets.images.get(image),
             (x - width) * Utils.canvas.width,
             (y - height) * Utils.canvas.height,
             (width * 2) * Utils.canvas.width,
             (height * 2) * Utils.canvas.height);
         Renderer.context.restore();
     }
-    public static drawImageRaw(image: any, x: number, y: number, width: number, height: number): void {
-        Renderer.context.drawImage(image, x * Utils.canvas.width, y * Utils.canvas.height, width * Utils.canvas.width, height * Utils.canvas.height);
+    public static drawImageRaw(image: string, x: number, y: number, width: number, height: number): void {
+        Renderer.context.drawImage(Assets.images.get(image), x * Utils.canvas.width, y * Utils.canvas.height, width * Utils.canvas.width, height * Utils.canvas.height);
     }
 
     public static levelTags = [1, 5, 10, 20, 30, 50];
-    public static stage1 = Assets.assets.stage1;
-    public static stage5 = Assets.assets.stage5;
-    public static stage10 = Assets.assets.stage10;
-    public static stage20 = Assets.assets.stage20;
-    public static stage30 = Assets.assets.stage30;
-    public static stage50 = Assets.assets.stage50;
-    public static levelImages = [Renderer.stage1, Renderer.stage5, Renderer.stage10, Renderer.stage20, Renderer.stage30, Renderer.stage50];
 
     public static displayLevel(level: number) {
         let remaininglevel = level;
@@ -83,7 +77,7 @@ export class Renderer {
         let width = 0.01;
         while (remaininglevel > 0) {
             if (remaininglevel - Renderer.levelTags[index] >= 0) {
-                Renderer.drawImageRaw(Renderer.levelImages[index], 1 - (displayCount + 1) * width, 1 - hieght, width, hieght);
+                Renderer.drawImageRaw(Assets.levelImages[index], 1 - (displayCount + 1) * width, 1 - hieght, width, hieght);
                 displayCount++;
                 remaininglevel -= Renderer.levelTags[index];
             } else {
