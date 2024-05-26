@@ -13,6 +13,7 @@ import { Galaga, Persitence } from "./galaga";
 import { GalagaScreen } from "./galagascreen";
 
 export class GameplayScreen extends GalagaScreen {
+    public override readonly screenName: string = 'game-play';
     public static readonly instance = new GameplayScreen();
     private score = 0;
     private level = 0;
@@ -43,11 +44,10 @@ export class GameplayScreen extends GalagaScreen {
         Renderer.displayLevel((Wave.level));
     }
 
-    public update(elapsedTime) {
+    public update(elapsedTime: number) {
         // console.log(elapsedTime)
         if (elapsedTime > 1000) {
             console.log("Long frame on");
-            console.log(MyGame);
         }
         if (!this.paused) {
             Sparkle.update(elapsedTime); // Always sparkle ? 
@@ -66,14 +66,14 @@ export class GameplayScreen extends GalagaScreen {
 
     public levelUp() {
         if (Enemies.enemies.length == 0) {
-            Projectiles.proj.forEach(e => {
+            Projectiles.proj.forEach((e: any) => {
                 e.dirty = true;
             });
             this.level++;
             let hits = Player.updateAccuracy();
             if (Wave.isChallengeLevel()) {
-                ScreenText.addText("HITS: " + hits, 0.5, 0.5, 30, 3000, 'rgba(255,100,255,1)', false);
-                ScreenText.addText("BONUS: " + (hits * 100), 0.5, 0.5, 30, 3000, 'rgba(255,100,255,1)', false);
+                ScreenText.addText("HITS: " + hits, 0.5, 0.5, 30, 3000, 'rgba(255,100,255,1)');
+                ScreenText.addText("BONUS: " + (hits * 100), 0.5, 0.5, 30, 3000, 'rgba(255,100,255,1)');
                 this.score += hits * 100;
             }
             Wave.levelUp(this.level);

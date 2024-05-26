@@ -2,6 +2,7 @@ import { GalagaScreen } from "./galagascreen";
 import { Galaga } from "./galaga";
 
 export class MainMenuScreen extends GalagaScreen {
+    public override readonly screenName: string = 'main-menu';
     public static readonly instance = new MainMenuScreen();
     private startAttract = true;
     public initialize() {

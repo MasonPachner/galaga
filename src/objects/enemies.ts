@@ -47,7 +47,7 @@ export class Enemies {
     ];
 
     // Fun ships, can't attack, only on challenging waves
-    public static makeChallengeUnit(spec) {
+    public static makeChallengeUnit(spec: EnemyParams) {
         let challenge = new ChallengeShip(spec);
         Enemies.enemies.push(challenge);
         return challenge;
@@ -105,9 +105,9 @@ export class Enemies {
     }
 
     // Tractor beam attack for Boss Galagas
-    public static tractorBeam(elapsedTime, enemy) {
+    public static tractorBeam(elapsedTime: number, enemy: EnemyShip) {
         if (enemy.delay > 0) return;
-        if (enemy.moveState == 5 && enemy.attackCooldown >= enemy.attackDelay) {
+        if (enemy.moveState == EnemyMoveState.tractoring && enemy.attackCooldown >= enemy.attackDelay) {
             enemy.rotation = Math.PI * 3 / 2;
             if (enemy.tractorExpand) {
                 Projectiles.makeBeam(enemy.rotation, enemy.location, enemy, Math.PI / 16, enemy.beamGroup);
@@ -122,7 +122,7 @@ export class Enemies {
 
             enemy.tractorExpand = enemy.projectiles < 80;
             if (Projectiles.beamGroup(enemy.beamGroup).length == 0) {
-                enemy.moveState = 1;
+                enemy.moveState = EnemyMoveState.returnToFormation;
                 enemy.projectiles = 2;
                 enemy.tractorExpand = true;
             }
@@ -236,7 +236,10 @@ export class Enemies {
         }
     }
 
-    public static followShip(enemy, elapsedTime) {
+    public static followShip(enemy: EnemyShip, elapsedTime: number) {
+        if (!enemy.owner) {
+            throw new Error("Enemy has no owner");
+        }
         enemy.rotation = enemy.owner.rotation;
         let locToBe = {
             x: enemy.owner.location.x,
@@ -254,7 +257,7 @@ export class Enemies {
 
 
     public static render() {
-        Enemies.enemies.forEach((e) => {
+        Enemies.enemies.forEach((e: EnemyShip) => {
             // meoww MyGame.renderer.fillCircle(e.location.x,e.location.y,e.size,'rgba(255,0,0,1)');
             Renderer.drawImage(e.images[e.lives - 1], e.location.x, e.location.y, e.size, e.size, e.rotation - Math.PI / 2);
         });
@@ -263,7 +266,7 @@ export class Enemies {
     /**
      * Update function moves all enemies
      */
-    public static update(elapsedTime) {
+    public static update(elapsedTime: number) {
         let checkAttack = true;
         let states = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         for (let e in Enemies.enemies) {
@@ -282,7 +285,7 @@ export class Enemies {
         Enemies.canAttack = Enemies.canAttack || checkAttack;
     }
 
-    public static checkGroupBonus(groupCheck) {
+    public static checkGroupBonus(groupCheck?: number) {
         for (let enemyI in Enemies.enemies) {
             let enemy = Enemies.enemies[enemyI];
             if (enemy.groupID == groupCheck && ((enemy.dirty && !enemy.killedByPlayer) || !enemy.dirty)) {
@@ -294,11 +297,11 @@ export class Enemies {
 
     public static clean() {
         let cleanUfos: any = [];
-        Enemies.enemies.forEach(e => {
+        Enemies.enemies.forEach((e: EnemyShip) => {
             if (!e.dirty) {
                 cleanUfos.push(e);
             } else {
-                if (Enemies.attackers > 0 && (e.moveState == 3 || e.moveState == 5))
+                if (Enemies.attackers > 0 && (e.moveState == EnemyMoveState.followingAttackPath || e.moveState == EnemyMoveState.tractoring))
                     Enemies.returnAttacker();
                 e.handleDirty();
                 if (e.killedByPlayer) {
@@ -311,7 +314,7 @@ export class Enemies {
         Enemies.enemies = cleanUfos;
     }
 
-    public static setLevel(inlevel) {
+    public static setLevel(inlevel: number) {
         Enemies.level = inlevel;
     }
 

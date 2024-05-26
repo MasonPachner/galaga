@@ -3,6 +3,7 @@ import { Galaga, Persitence } from "./galaga";
 import { Keyboard } from "../systems/input-keyboard";
 
 export class HelpScreen extends GalagaScreen {
+    public override readonly screenName: string = 'help';
     public static readonly instance = new HelpScreen();
     private toChange: string | null = null;
     public initialize() {

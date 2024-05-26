@@ -43,7 +43,7 @@ export class Player {
 
 
 
-    public static inputMove(num) {
+    public static inputMove(num: number) {
         if (!Player.attract)
             Player.thrust.push(num);
     }
@@ -239,7 +239,7 @@ export class Player {
                 player.moveState = PlayerMoveState.moveToSpot;
                 return;
             }
-            let speed = Player.thrust.reduce((total, num) => {
+            let speed = Player.thrust.reduce((total: number, num: number) => {
                 return total + num;
             }, 0);
             player.location.x += speed * elapsedTime * 0.0008;

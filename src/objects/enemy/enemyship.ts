@@ -50,7 +50,7 @@ export abstract class EnemyShip extends Ship {
     public formationLocation: Location;
     public formationEntrance?: BezierCurve;
     public delay: number = 0;
-    public groupID: number;
+    public groupID?: number;
     public owner?: Ship;
     public ownedShip?: Ship;
     public abstract readonly color: string;
@@ -92,7 +92,7 @@ export abstract class EnemyShip extends Ship {
     }
 
 
-    public override handleDirty = function () {
+    public override handleDirty() {
         ParticleSystem.ufoExplosion(this.location.x, this.location.y, this.color);
     };
 
@@ -109,7 +109,7 @@ export abstract class EnemyShip extends Ship {
         }
         let pathData = this.getAttackPath();
         this.timeToFinish = pathData.duration ?? 0;
-        this.formationEntrance = pathData[1];
+        this.formationEntrance = pathData;
         this.moveState = EnemyMoveState.followingAttackPath;
         this.currentTime = 0;
         this.attackCooldown = 0;

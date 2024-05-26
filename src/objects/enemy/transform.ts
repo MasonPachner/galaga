@@ -12,7 +12,7 @@ export class TransformShip extends EnemyShip {
 
     //scorp,flag,bossconian
     private readonly scores = [1000, 2000, 3000];
-    public override groupBonus = function () {
+    public override groupBonus() {
         return this.scores[this.imageType];
     };
 

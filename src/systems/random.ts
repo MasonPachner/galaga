@@ -11,7 +11,7 @@ export class Random {
         return Math.random();
     }
 
-    public static nextRange(min, max) {
+    public static nextRange(min: number, max: number) {
         let range = max - min;
         return Math.floor((Math.random() * range) + min);
     }
@@ -23,7 +23,7 @@ export class Random {
             y: Math.sin(angle)
         };
     }
-    public static nextArcVector(range, direction) {
+    public static nextArcVector(range: number, direction: number) {
         let angle = Number((Math.random() * range * 2) - range + direction);
 
         return {
@@ -35,7 +35,7 @@ export class Random {
     //
     // This is used to give a small performance optimization in generating gaussian random numbers.
     public static usePrevious = false;
-    public static y2;
+    public static y2: number = 0;
 
     //
     // Generate a normally distributed random number.
@@ -43,7 +43,7 @@ export class Random {
     // NOTE: This code is adapted from a wiki reference I found a long time ago.  I originally
     // wrote the code in C# and am now converting it over to JavaScript.
     //
-    public static nextGaussian(mean, stdDev) {
+    public static nextGaussian(mean: number, stdDev: number) {
         let x1 = 0;
         let x2 = 0;
         let y1 = 0;

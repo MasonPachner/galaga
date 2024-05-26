@@ -40,7 +40,7 @@ export class Wave {
     /**
      * Update function for a wave, moves all enemies and does location grid permutations
      */
-    public static update(elapsedTime) {
+    public static update(elapsedTime: number) {
         if (Wave.pause <= 0 && Wave.wave.groups != undefined) {
             if (Wave.launchNextGroup) {
                 let launched = true;
@@ -79,7 +79,7 @@ export class Wave {
      * Note- This spreads and retracts the enemy location grid, does not get force reset until end of level
      * Relies of float mathmatics to stay consistent.
      */
-    public static breathe(elapsedTime) {
+    public static breathe(elapsedTime: number) {
         Wave.waveOffset += elapsedTime;
         for (let i = 0; i < Wave.ROWS; i++) {
             for (let j = 0; j < Wave.COLS; j++) {
@@ -101,7 +101,7 @@ export class Wave {
      * Note- This shuffles the enemy location grid, does not get force reset until end of level
      * Relies of float mathmatics to stay consistent.
      */
-    public static shake(elapsedTime) {
+    public static shake(elapsedTime: number) {
         Wave.waveOffset += elapsedTime;
         if (Wave.waveLoc[Wave.ROWS - 1][Wave.COLS - 1].x > .999) {
             Wave.waveDirection = -1;
@@ -126,7 +126,7 @@ export class Wave {
         Enemies.enemies.length = 0;
     }
 
-    public static waveList = [
+    public static readonly waveList = [
         WaveGenerator.wave1,
         WaveGenerator.wave2,
         WaveGenerator.wave3,

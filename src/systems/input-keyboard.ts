@@ -1,6 +1,6 @@
 export class Keyboard {
-    private static keys: {};
-    private static handlers: {};
+    private static keys = new Map<string, number>();
+    private static handlers = new Map<string, (a: number) => void>();
 
     public static initialize() {
         window.addEventListener('keydown', Keyboard.keyPress);
@@ -8,7 +8,7 @@ export class Keyboard {
     }
 
     public static reset() {
-        Keyboard.handlers = {};
+        Keyboard.handlers = new Map();
     }
 
     public static keyPress(e) {
@@ -16,21 +16,21 @@ export class Keyboard {
     }
 
     public static keyRelease(e) {
-        delete Keyboard.keys[e.key];
+        Keyboard.keys.delete(e.key);
     }
 
     public static update(elapsedTime?: number) {
         for (let key in Keyboard.keys) {
             if (Keyboard.keys.hasOwnProperty(key)) {
-                if (Keyboard.handlers[key]) {
-                    Keyboard.handlers[key](elapsedTime);
+                if (Keyboard.handlers.get(key)) {
+                    Keyboard.handlers.get(key)?.(elapsedTime ?? 0);
                 }
             }
         }
     };
 
-    public static register(key, handler) {
-        Keyboard.handlers[key] = handler;
+    public static register(key: string, handler: (a: number) => void) {
+        Keyboard.handlers.set(key, handler);
     };
 };
 

@@ -1,4 +1,5 @@
 import { Enemies } from "../objects/enemies";
+import { EnemyMoveState, EnemyShip } from "../objects/enemy/enemyship";
 import { Player } from "../objects/player";
 import { PlayerMoveState } from "../objects/playership";
 import { Projectiles } from "../objects/projectiles";
@@ -13,11 +14,11 @@ export class Collisions {
 
     public static collisonHandler() {
         let score = 0;
-        Enemies.enemies.forEach(enemy => {
+        Enemies.enemies.forEach((enemy: EnemyShip) => {
             for (let pI in Projectiles.proj) {
                 let pro = Projectiles.proj[pI];
                 if (pro.playerDamage) continue;
-                if (Utils.distBetween(enemy.location, pro.location) <= pro.size + enemy.size && (enemy.moveState != 4)) {
+                if (Utils.distBetween(enemy.location, pro.location) <= pro.size + enemy.size && (enemy.moveState != EnemyMoveState.spinning)) {
                     pro.dirty = true;
                     enemy.setDirty(true);
                     pro.owner.waveHits += 1;
@@ -29,19 +30,19 @@ export class Collisions {
                             if (Wave.isChallengeLevel()) {
                                 nextScore = Wave.challengeLevelCount >= 6 ? 3000 : Collisions.groupBonuses[Wave.challengeLevelCount - 1];
                                 score += nextScore;
-                                ScreenText.addText(nextScore, enemy.location.x, enemy.location.y, 26, 1500, 'rgba(255,34,255,1)');
+                                ScreenText.addText(nextScore.toString(), enemy.location.x, enemy.location.y, 26, 1500, 'rgba(255,34,255,1)');
                             } else {
                                 let bonus = enemy.groupBonus();
                                 if (bonus > 0) {
                                     nextScore = bonus;
                                     score += bonus;
-                                    ScreenText.addText(nextScore, enemy.location.x, enemy.location.y, 26, 1500, 'rgba(255,34,255,1)');
+                                    ScreenText.addText(nextScore.toString(), enemy.location.x, enemy.location.y, 26, 1500, 'rgba(255,34,255,1)');
                                 } else {
-                                    ScreenText.addText(nextScore, enemy.location.x, enemy.location.y, 26, 1500, 'rgba(255,34,34,1)');
+                                    ScreenText.addText(nextScore.toString(), enemy.location.x, enemy.location.y, 26, 1500, 'rgba(255,34,34,1)');
                                 }
                             }
                         } else {
-                            ScreenText.addText(nextScore, enemy.location.x, enemy.location.y, 26, 1500, 'rgba(255,34,34,1)');
+                            ScreenText.addText(nextScore.toString(), enemy.location.x, enemy.location.y, 26, 1500, 'rgba(255,34,34,1)');
                         }
 
                     }
@@ -99,30 +100,30 @@ export class Collisions {
     }
 
     // Reference: https://stackoverflow.com/questions/37224912/circle-line-segment-collision
-    private lineCircleIntersection(pt1, pt2, circle) {
-        let v1 = {
-            x: pt2.x - pt1.x,
-            y: pt2.y - pt1.y
-        };
-        let v2 = {
-            x: pt1.x - circle.center.x,
-            y: pt1.y - circle.center.y
-        };
-        let b = -2 * (v1.x * v2.x + v1.y * v2.y);
-        let c = 2 * (v1.x * v1.x + v1.y * v1.y);
-        let d = Math.sqrt(b * b - 2 * c * (v2.x * v2.x + v2.y * v2.y - circle.radius * circle.radius));
-        if (isNaN(d)) { // no intercept
-            return false;
-        }
-        // These represent the unit distance of point one and two on the line
-        let u1 = (b - d) / c;
-        let u2 = (b + d) / c;
-        if (u1 <= 1 && u1 >= 0) { // If point on the line segment
-            return true;
-        }
-        if (u2 <= 1 && u2 >= 0) { // If point on the line segment
-            return true;
-        }
-        return false;
-    }
+    // private lineCircleIntersection(pt1, pt2, circle) {
+    //     let v1 = {
+    //         x: pt2.x - pt1.x,
+    //         y: pt2.y - pt1.y
+    //     };
+    //     let v2 = {
+    //         x: pt1.x - circle.center.x,
+    //         y: pt1.y - circle.center.y
+    //     };
+    //     let b = -2 * (v1.x * v2.x + v1.y * v2.y);
+    //     let c = 2 * (v1.x * v1.x + v1.y * v1.y);
+    //     let d = Math.sqrt(b * b - 2 * c * (v2.x * v2.x + v2.y * v2.y - circle.radius * circle.radius));
+    //     if (isNaN(d)) { // no intercept
+    //         return false;
+    //     }
+    //     // These represent the unit distance of point one and two on the line
+    //     let u1 = (b - d) / c;
+    //     let u2 = (b + d) / c;
+    //     if (u1 <= 1 && u1 >= 0) { // If point on the line segment
+    //         return true;
+    //     }
+    //     if (u2 <= 1 && u2 >= 0) { // If point on the line segment
+    //         return true;
+    //     }
+    //     return false;
+    // }
 }

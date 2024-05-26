@@ -3,6 +3,7 @@ import { GalagaScreen } from "./galagascreen";
 import { Galaga, Persitence } from "./galaga";
 
 export class HighScoreScreen extends GalagaScreen {
+    public override readonly screenName: string = 'high-scores';
     public static readonly instance = new HighScoreScreen();
     public initialize() {
         document.getElementById('id-high-scores-back')?.addEventListener(

@@ -1,17 +1,38 @@
 import { Assets } from "../systems/assets";
 import { ParticleSystem } from "../systems/particle-system";
 import { Renderer } from "../systems/renderer";
-import { Utils } from "../systems/utils";
+import { Utils } from "../systems/utils"
+import { Location } from "../systems/location";;
+export interface Projectile {
+    owner: any;
+    dirty: boolean;
+    playerProjectile: boolean;
+    speed: number;
+    rotation: number;
+    lifespan: number;
+    color: string;
+    size: number;
+    beam: boolean;
+    playerDamage: boolean;
+    location: Location;
+    updateLocation: (elapsedTime: number) => void;
+    handleDirty: () => void;
+    missDist?: number;
+    target?: Location;
+    range?: number;
+}
+
+
 
 export class Projectiles {
-    public static proj: any = [];
+    public static proj: Projectile[] = [];
 
     public static playerProjectile = Assets.assets.playerPro;
 
     public static enemyProjectile = Assets.assets.enemyPro;
 
-    public static makeProjectile(direction, inlocation, owner, playerDamage, color, target) {
-        let project: any = {
+    public static makeProjectile(direction: number, inlocation: Location, owner: any, playerDamage: boolean, color: string, target: Location | null) {
+        let project: Projectile = {
             owner: owner,
             dirty: false,
             playerProjectile: !playerDamage,
@@ -26,7 +47,7 @@ export class Projectiles {
                 x: Math.cos(direction) * owner.size + inlocation.x,
                 y: Math.sin(direction) * owner.size + inlocation.y,
             },
-            updateLocation: function (elapsedTime) {
+            updateLocation: function (elapsedTime: number) {
                 let prevY = this.location.y;
                 this.location.x -= Math.cos(this.rotation) * this.speed * elapsedTime;
                 this.location.y -= Math.sin(this.rotation) * this.speed * elapsedTime;
@@ -47,8 +68,8 @@ export class Projectiles {
     }
 
 
-    public static makeBeam(direction, inlocation, owner, arcSize, group) {
-        let project = {
+    public static makeBeam(direction: number, inlocation: Location, owner: any, arcSize: number, group: string) {
+        let project: any = {
             owner: owner,
             dirty: false,
             playerProjectile: false,
@@ -66,7 +87,7 @@ export class Projectiles {
                 x: Math.cos(direction) * owner.size + inlocation.x,
                 y: Math.sin(direction) * owner.size + inlocation.y,
             },
-            collidingWithPlayer: function (playerLocation, playerSize) { // each arc has 10 points that we check for collisions on. could be better
+            collidingWithPlayer: function (playerLocation: Location, playerSize: number): boolean {
                 let COLLISION_POINTS = 10;
                 if (owner.dirty || owner.ownsAShip || owner.moveState != 5) {
                     this.dirty = true;
@@ -85,7 +106,7 @@ export class Projectiles {
                 }
                 return false;
             },
-            updateLocation: function (elapsedTime) {
+            updateLocation: function (elapsedTime: number) {
                 this.size += this.speed * elapsedTime * (owner.tractorExpand ? 1 : -1);
                 if (this.size < 0.0001)
                     this.dirty = true;

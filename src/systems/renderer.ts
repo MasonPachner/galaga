@@ -11,7 +11,7 @@ export class Renderer {
     public static scaleL() {
         return Math.max(Utils.canvas.width, Utils.canvas.height);
     }
-    public static fillCircle(x, y, radius, color) {
+    public static fillCircle(x: number, y: number, radius: number, color: string): void {
         Renderer.context.beginPath();
         Renderer.context.fillStyle = color;
         Renderer.context.arc(x * Utils.canvas.width, y * Utils.canvas.height, radius * Renderer.scaleS(), 0, 2 * Math.PI, false);
@@ -24,14 +24,14 @@ export class Renderer {
         Utils.canvas.height = window.innerHeight;
     }
 
-    public static strokeArc(color, x, y, arcSize, strokeWidth, radius, direction) {
+    public static strokeArc(color: string, x: number, y: number, arcSize: number, strokeWidth: number, radius: number, direction: number): void {
         Renderer.context.beginPath();
         Renderer.context.strokeStyle = color;
         Renderer.context.lineWidth = Math.max(Math.floor(strokeWidth * Renderer.scaleL()), 1);
         Renderer.context.arc(x * Utils.canvas.width, y * Utils.canvas.height, radius * Renderer.scaleL(), direction - arcSize / 2, direction + arcSize / 2);
         Renderer.context.stroke();
     }
-    public static fillPath(lines, color) {
+    public static fillPath(lines: any[], color: string) {
         Renderer.context.save();
         Renderer.context.beginPath();
         //context.strokeStyle = 'rgba(0,0,0,1)';
@@ -49,7 +49,7 @@ export class Renderer {
         Renderer.context.restore();
     }
 
-    public static drawImage(image, x, y, width, height, rotation) {
+    public static drawImage(image: any, x: number, y: number, width: number, height: number, rotation: number): void {
         Renderer.context.save();
         Renderer.context.translate(x * Utils.canvas.width, y * Utils.canvas.height);
         Renderer.context.rotate(rotation);
@@ -62,7 +62,7 @@ export class Renderer {
             (height * 2) * Utils.canvas.height);
         Renderer.context.restore();
     }
-    public static drawImageRaw(image, x, y, width, height) {
+    public static drawImageRaw(image: any, x: number, y: number, width: number, height: number): void {
         Renderer.context.drawImage(image, x * Utils.canvas.width, y * Utils.canvas.height, width * Utils.canvas.width, height * Utils.canvas.height);
     }
 
@@ -75,7 +75,7 @@ export class Renderer {
     public static stage50 = Assets.assets.stage50;
     public static levelImages = [Renderer.stage1, Renderer.stage5, Renderer.stage10, Renderer.stage20, Renderer.stage30, Renderer.stage50];
 
-    public static displayLevel(level) {
+    public static displayLevel(level: number) {
         let remaininglevel = level;
         let index = Renderer.levelTags.length - 1;
         let displayCount = 0;
@@ -92,12 +92,12 @@ export class Renderer {
         }
     }
 
-    public static fillRect(x, y, width, height, color) {
+    public static fillRect(x: number, y: number, width: number, height: number, color: any) {
         Renderer.context.fillStyle = color;
         Renderer.context.fillRect(x * Utils.canvas.width, y * Utils.canvas.height, width, height);
     }
 
-    public static strongText(string, x, y, fontsize, color, black: boolean = false) {
+    public static strongText(string: string, x: number, y: number, fontsize: string | number, color: string, black: boolean = false) {
         Renderer.context.fillStyle = color;
         Renderer.context.lineWidth = 1;
         Renderer.context.strokeStyle = black ? 'rgba(0,0,0,1)' : 'rgba(255,255,255,1)';
@@ -106,7 +106,7 @@ export class Renderer {
         Renderer.context.strokeText(string, x * Utils.canvas.width, y * Utils.canvas.height);
     }
 
-    public static drawLine(color, p1x, p1y, p2x, p2y) {
+    public static drawLine(color: string, p1x: number, p1y: number, p2x: number, p2y: number) {
         Renderer.context.beginPath();
         Renderer.context.lineWidth = 20;
         Renderer.context.strokeStyle = color;

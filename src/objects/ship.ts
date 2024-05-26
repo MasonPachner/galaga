@@ -9,7 +9,7 @@ export abstract class Ship {
     public lives: number = 1;
     public abstract readonly images: any;
     public killedByPlayer: boolean = false;
-    public size: 0.02;
+    public size: number = 0.02;
     public rotation: number = Math.PI / 2;
     public thrustVector: any = { x: 0, y: 0 };
     public speed: number = 0;
