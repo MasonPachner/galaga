@@ -1,7 +1,7 @@
 
 
 <main class="main" id="id-body">
-    <div id="game">
+    <div *ngIf="loaded" id="game">
         <router-outlet></router-outlet>
     </div>
 </main>

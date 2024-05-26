@@ -1,6 +1,6 @@
 import { Random } from "./random";
 import { Renderer } from "./renderer";
-
+export interface Arc {  direction: number, range: number}
 interface ParticleSpec {
     center: { x: number, y: number };
     size: { mean: number, stdev: number };
@@ -12,7 +12,7 @@ interface ParticleSpec {
 export class ParticleSystem {
     private static systems: any = [];
 
-    public static newSystem(spec: any, arc: any) {
+    public static newSystem(spec: any, arc: Arc | undefined) {
         let system: any = {
             particles: [],
             spec: spec,
@@ -23,12 +23,12 @@ export class ParticleSystem {
         ParticleSystem.systems.push(system);
     }
 
-    public static create(spec: ParticleSpec, arc: any | null): any {
+    public static create(spec: ParticleSpec, arc: Arc | undefined): any {
         let size = Random.nextGaussian(spec.size.mean, spec.size.stdev);
         let p: any = {
             center: { x: spec.center.x, y: spec.center.y },
             size: { x: Math.max(0, size), y: size },
-            direction: arc == null ? Random.nextCircleVector() : Random.nextArcVector(arc.range, arc.direction),
+            direction: arc == undefined ? Random.nextCircleVector() : Random.nextArcVector(arc.range, arc.direction),
             speed: Random.nextGaussian(spec.speed.mean, spec.speed.stdev), // pixels per second
             rotation: 0,
             lifetime: Random.nextGaussian(spec.lifetime.mean, spec.lifetime.stdev), // seconds
@@ -79,7 +79,7 @@ export class ParticleSystem {
             lifetime: { mean: 1, stdev: 0.5 },
             color: color,
             count: 200,
-        }, null);
+        }, undefined);
     }
     public static playerExplosion(x: number, y: number) {
         ParticleSystem.newSystem({
@@ -89,7 +89,7 @@ export class ParticleSystem {
             lifetime: { mean: 2, stdev: 0.5 },
             color: 'rgba(255,255,255,1)',
             count: 500,
-        }, null);
+        }, undefined);
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: 0.0012, stdev: 0.00025 },
@@ -97,7 +97,7 @@ export class ParticleSystem {
             lifetime: { mean: 2, stdev: 0.5 },
             color: 'rgba(255,0,0,1)',
             count: 600,
-        }, null);
+        }, undefined);
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: 0.0014, stdev: 0.00025 },
@@ -105,9 +105,9 @@ export class ParticleSystem {
             lifetime: { mean: 2, stdev: 0.5 },
             color: 'rgba(255,165,0,1)',
             count: 300,
-        }, null);
+        }, undefined);
     }
-    public static shipThrust(x: number, y: number, arc: number) {
+    public static shipThrust(x: number, y: number, arc: Arc) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: 0.002, stdev: 0.0025 },
@@ -140,7 +140,7 @@ export class ParticleSystem {
         }, arc);
 
     }
-    public static tractorBeam(x: number, y: number, arc: number, color: string) {
+    public static tractorBeam(x: number, y: number, arc: Arc, color: string) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: .0007, stdev: 0.0 },
@@ -158,7 +158,7 @@ export class ParticleSystem {
             lifetime: { mean: 2, stdev: 0.2 },
             color: 'rgba(0,150,0,1)',
             count: 200,
-        }, null);
+        }, undefined);
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: .0008, stdev: 0.0 },
@@ -166,7 +166,7 @@ export class ParticleSystem {
             lifetime: { mean: 2, stdev: 0.2 },
             color: 'rgba(150,150,0,1)',
             count: 200,
-        }, null);
+        }, undefined);
     }
     public static reset() {
         ParticleSystem.systems.length = 0;

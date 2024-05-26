@@ -17,28 +17,12 @@ import { Ship } from "./ship";
 import { Wave } from "./wave";
 
 export class Enemies {
-
     public static enemies: any = [];
     public static level = 0;
     public static canAttack = false;
     public static id = 0;
     public static attackers = 0;
-    public static butterflyImage = Assets.assets.butterfly;
-    public static beeImage = Assets.assets.bee;
-    public static flagImage = Assets.assets.boss1;
-    public static flagImage2 = Assets.assets.boss2;
-    public static badPlayerImage = Assets.assets.capture;
-    public static challengeImages:string[][] = [
-        [Enemies.entImage],
-        [Enemies.satImage],
-        [Enemies.dragImage]
-    ];
 
-    public static tranformImages:string[][] = [
-        [Assets.scorpion],
-        [Assets.bosconian],
-        [Assets.flagship],
-    ];
 
     // Fun ships, can't attack, only on challenging waves
     public static makeChallengeUnit(spec: EnemyParams) {
@@ -297,9 +281,7 @@ export class Enemies {
                     Enemies.returnAttacker();
                 e.handleDirty();
                 if (e.killedByPlayer) {
-                    let v = Assets.assets.enemyExplosion.cloneNode();
-                    v.volume = 1;
-                    Utils.safePlay(v);
+                    Utils.safePlay(Assets.enemyExplosion);
                 }
             }
         });

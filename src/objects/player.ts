@@ -5,10 +5,11 @@ import { Renderer } from "../systems/renderer";
 import { ScreenText } from "../systems/screen-text";
 import { Utils } from "../systems/utils";
 import { Enemies } from "./enemies";
-import { EnemyMoveState } from "./enemy/enemyship";
+import { EnemyMoveState, EnemyShip } from "./enemy/enemyship";
 import { PlayerMoveState, PlayerShip } from "./playership";
-import { Projectiles } from "./projectiles";
+import { Beam, Bullet, Projectiles } from "./projectiles";
 import { Ship } from "./ship";
+import { Location } from "../systems/location";
 
 export interface Bounds {
     l: number,
@@ -26,12 +27,13 @@ export class Player {
     public static newLife = false;
     public static shots = 0;
     public static totalHits = 0;
+    public static waveHits = 0;
     public static isGameOver = false;
-    public static lastLoc: any = null;
+    public static lastLoc?: Location = undefined;
     public static bounds: Bounds[] = [];
     public static nextLife = 20000;
-    public static thrust: any = [];
-    public static target: any = null;
+    public static thrust: number[] = [];
+    public static target?: EnemyShip = undefined;
     public static colors = ['rgba(255,255,0,1)', 'rgba(255, 0, 0,1)', 'rgba(255, 0, 255,1)', 'rgba(0, 0, 255,1)', 'rgba(0, 255, 255,1)', 'rgba(0, 255, 0,1)'];
     public static dontBounce = 400;
     public static safeX = 0;
@@ -40,17 +42,19 @@ export class Player {
 
 
     public static inputMove(num: number) {
-        if (!Player.attract)
+        if (!Player.attract){
             Player.thrust.push(num);
+        }
     }
     public static inputShoot() {
-        if (!Player.attract)
+        if (!Player.attract){
             Player.fireMissile();
+        }
     }
 
     public static update(elapsedTime: number, score: number) {
         if (Player.attract) {
-            if (Player.target != null)
+            if (Player.target != undefined)
                 Player.fireMissile();
             Player.calculateSafeLocation(elapsedTime);
             //MyGame.renderer.strongText("Press any key to start", 25, 20, 'rgba(255,255,255,1)', true);
@@ -103,14 +107,16 @@ export class Player {
         for (let proI in Projectiles.proj) {
             let pro = Projectiles.proj[proI];
             if (pro.playerDamage && (pro.location.y < (Player.playerY + Ship.size * 2))) {
-                if (!pro.beam) {
-                    Player.bounds.push({
-                        l: pro.target.x - (Math.abs(pro.range) + Ship.size * 1.5),
-                        u: pro.target.x + Math.abs(pro.range) + Ship.size * 1.5,
-                        loc: pro.target.x,
-                        distance: Math.abs(pro.location.y - Player.playerY)
-                    });
-                } else {
+                if (pro instanceof Bullet) {
+                    if(pro.target && pro.range){
+                        Player.bounds.push({
+                            l: pro.target.x - (Math.abs(pro.range) + Ship.size * 1.5),
+                            u: pro.target.x + Math.abs(pro.range) + Ship.size * 1.5,
+                            loc: pro.target.x,
+                            distance: Math.abs(pro.location.y - Player.playerY)
+                        });
+                    }
+                } else if (pro instanceof Beam){
                     let diff = Math.abs(Math.cos(pro.rotation - (pro.arcSize / 2)) * pro.size);
                     Player.bounds.push({
                         l: pro.location.x - diff - Ship.size * 2.5,
@@ -140,22 +146,22 @@ export class Player {
         if (Enemies.enemies.length == 0) { //Nobody to shoot
             Player.safeX = 0.5;
         } else {
-            if (Player.target == null || Player.target.dirty) {
-                Player.lastLoc = null;
+            if (Player.target == undefined || Player.target.dirty) {
+                Player.lastLoc = undefined;
                 Player.target = Enemies.enemies[Math.floor(Math.random() * Enemies.enemies.length)];
             }
-            if (Player.target.location.y > 2) {
-                Player.target = null;
-                Player.lastLoc = null;
+            if ((Player.target?.location.y?? 0) > 2) {
+                Player.target = undefined;
+                Player.lastLoc = undefined;
             } else {
-                Player.safeX = Player.target.location.x;
-                if (Player.lastLoc != null) {
+                Player.safeX = Player.target?.location.x ?? 0;
+                if (Player.lastLoc != undefined && Player.target !== undefined) {
                     let offset = (Player.target.location.x - Player.lastLoc.x) * ((Player.players[0].location.y - Player.lastLoc.y) / 11); // Try to aim where the target is gonna be
                     Player.safeX = Player.safeX + offset;
                 }
             }
         }
-        if (Player.target != null && Player.dontBounce < 0) {
+        if (Player.target != undefined && Player.dontBounce < 0) {
             Player.lastLoc = {
                 x: Player.target.location.x,
                 y: Player.target.location.y,
@@ -360,12 +366,11 @@ export class Player {
     public static fireMissile() {
         for (let playerI in Player.players) {
             let player = Player.players[playerI];
-            if (player.projectiles > 0 && player.projectileQueue && (player.moveState == PlayerMoveState.playerControl || player.moveState == PlayerMoveState.moveToSpot)) {
-                let v = Assets.assets.playerLaser.cloneNode();
-                v.volume = 0.4;
-                Utils.safePlay(v);
+            if (player.projectiles > 0 && player.projectileQueue && 
+                (player.moveState == PlayerMoveState.playerControl || player.moveState == PlayerMoveState.moveToSpot)) {
+                Utils.burstPlay(Assets.playerLaser, 0.4);
                 player.projectileQueue = false;
-                Projectiles.makeProjectile(Math.PI / 2, player.location, player, false, Player.colors[Player.shots % Player.colors.length], Player.target);
+                Projectiles.makeProjectile(Math.PI / 2, player.location, player, Player.colors[Player.shots % Player.colors.length], Player.target?.location);
                 player.projectiles--;
                 Player.missileWasFired();
             }
@@ -380,13 +385,9 @@ export class Player {
         Player.shots++;
     }
 
-    public static updateAccuracy() {
-        let temp = 0;
-        for (let playerI in Player.players) {
-            let player = Player.players[playerI];
-            temp = temp + player.waveHits;
-            player.waveHits = 0;
-        }
+    public static updateAccuracy():number {
+        let temp = Player.waveHits;
+        Player.waveHits = 0;
         return temp;
     }
 

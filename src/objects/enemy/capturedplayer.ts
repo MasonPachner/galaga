@@ -1,10 +1,11 @@
+import { Assets } from "../../systems/assets";
 import { BezierCurve, Path } from "../../systems/paths";
 import { Enemies } from "../enemies";
 import { EnemyMoveState, EnemyShip } from "./enemyship";
 
 export class CapturedPlayerShip extends EnemyShip {
     public override readonly color: string = "rgba(255,0,0,1)";
-    public override readonly images = [Enemies.badPlayerImage];
+    public override readonly images = [Assets.capture];
     public override readonly moveState = EnemyMoveState.following;
     public override canAttack = false;
 

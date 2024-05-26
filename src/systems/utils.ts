@@ -106,10 +106,9 @@ export class Utils {
         Assets.audio.get(audio)!.play();
     }
     public static safePlay(audio: string) {
-        Assets.audio.get(audio)!.play();
-        var playPromise = audio.play();
+        var playPromise = Assets.audio.get(audio)!.play();
         if (playPromise !== undefined) {
-            playPromise.then((e: Event) => { }).catch((error: any) => {
+            playPromise.then(() => { }).catch((error: any) => {
                 //safePlay(audio);
             });
         }

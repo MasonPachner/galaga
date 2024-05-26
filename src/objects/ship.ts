@@ -15,9 +15,12 @@ export abstract class Ship {
     public spinTime: number = 2500;
 
     public returnMissile() {
-        if (this.projectiles) {
-            this.projectiles++;
-        }
+        this.projectiles++;
+    }
+
+
+    public registerHit() {
+       
     }
 
     public abstract handleDirty(): void;

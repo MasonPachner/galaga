@@ -20,11 +20,10 @@ export class Keyboard {
     }
 
     public static update(elapsedTime?: number) {
-        for (let key in Keyboard.keys) {
-            if (Keyboard.keys.hasOwnProperty(key)) {
-                if (Keyboard.handlers.get(key)) {
-                    Keyboard.handlers.get(key)?.(elapsedTime ?? 0);
-                }
+        for (let key of Keyboard.keys) {
+            const onPress = Keyboard.handlers.get(key[0])
+            if(onPress){
+                onPress(elapsedTime ?? 0);
             }
         }
     };

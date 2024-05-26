@@ -1,10 +1,11 @@
+import { Assets } from "../../systems/assets";
 import { BezierCurve, Path } from "../../systems/paths";
 import { Enemies } from "../enemies";
 import { EnemyMoveState, EnemyShip } from "./enemyship";
 
 export class BeeShip extends EnemyShip {
     public override readonly color: string = "rgba(100,0,255,1)";
-    public override readonly images = [Enemies.beeImage];
+    public override readonly images = [Assets.bee];
 
     public override score(): number {
         return this.moveState == EnemyMoveState.lockToFormation ? 50 : 100;

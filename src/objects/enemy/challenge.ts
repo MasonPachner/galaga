@@ -1,3 +1,4 @@
+import { Assets } from "../../systems/assets";
 import { BezierCurve, Path } from "../../systems/paths";
 import { Enemies } from "../enemies";
 import { EnemyShip } from "./enemyship";
@@ -5,7 +6,13 @@ import { EnemyShip } from "./enemyship";
 export class ChallengeShip extends EnemyShip {
     public override readonly color: string = "rgba(0,0,255,1)";
     private readonly imageType = this.enemyParams.imageType ?? 0;
-    public override readonly images = Enemies.challengeImages[this.imageType];
+
+    public static readonly  challengeImages:string[][] = [
+        [Assets.enterprise],
+        [Assets.satellite],
+        [Assets.dragonfly]
+    ];
+    public override readonly images = ChallengeShip.challengeImages[this.imageType];
 
     public override score(): number {
         return 160;

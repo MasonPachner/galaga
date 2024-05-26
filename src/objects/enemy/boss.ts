@@ -1,3 +1,4 @@
+import { Assets } from "../../systems/assets";
 import { BezierCurve, Path } from "../../systems/paths";
 import { Enemies } from "../enemies";
 import { Player } from "../player";
@@ -5,9 +6,8 @@ import { EnemyMoveState, EnemyShip } from "./enemyship";
 
 export class BossShip extends EnemyShip {
     public override readonly color: string = "rgba(230,40,230,1)";
-    public override readonly images = [Enemies.flagImage2, Enemies.flagImage];
+    public override readonly images = [Assets.boss1, Assets.boss2];
     public override readonly lives = 2;
-    public ownsAShip: boolean = false;
 
     public override score(): number {
         if (this.moveState == EnemyMoveState.lockToFormation) return 150;

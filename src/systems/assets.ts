@@ -10,7 +10,7 @@ interface AssetDef {
 
 export class Assets {
     public static images = new Map<string, HTMLImageElement>();
-    public static audio = new Map<string, AudioBuffer>();
+    public static audio = new Map<string, HTMLAudioElement>();
     private static readonly audioContext = new window.AudioContext();
 
     public static readonly stage1: string = "stage1";
@@ -41,7 +41,6 @@ export class Assets {
     public static readonly music: string = "music";
     public static readonly enemyLaser: string = "enemyLaser";
     public static readonly enemyExplosion: string = "enemyExplosion";
-    public static readonly background: string = "background";
 
     private static readonly assetOrder: AssetDef[] = [{
         // https://strategywiki.org/wiki/Galaga/Getting_Started
@@ -145,22 +144,28 @@ export class Assets {
         //  https://freesound.org/people/bareform/sounds/218721/
         key: Assets.enemyExplosion,
         source: '/audio/218721__bareform__boom-bang.mp3'
-    }, {
-        key: Assets.background,
-        source: '/images/background.png'
-    }];
+    }
+];
 
     private static async loadImageAsync(key: string, source: string): Promise<void> {
-        const image = new Image();
-        image.src = source;
-        await image.decode();
-        Assets.images.set(key, image);
+        try{
+            const image = new Image();
+            image.src = source;
+            await image.decode();
+            Assets.images.set(key, image);
+            
+        } catch (error) {
+            console.error(`Error loading image key: ${key} source: ${source}`);
+            console.error(error);
+        }
     }
 
     private static async loadAudioAsync(key: string, source: string): Promise<void> {
-        const response = await fetch(source)
-        const buffer = await Assets.audioContext.decodeAudioData(await response.arrayBuffer());
-        Assets.audio.set(key, buffer);
+        // const response = await fetch(source)
+        // const buffer = await Assets.audioContext.decodeAudioData(await response.arrayBuffer());
+        const audio = new Audio();
+        audio.src = source;
+        Assets.audio.set(key, audio);
     }
 
     //
@@ -177,7 +182,7 @@ export class Assets {
         Keyboard.initialize();
         Sparkle.initialize();
         // const idBody = document.getElementById('id-body');
-        // if (idBody !== null) {
+        // if (idBody !== undefined) {
         //     idBody.style.backgroundImage = Assets.images.get('background')?.src ?? '';
         // }
         Assets.loopMusic();

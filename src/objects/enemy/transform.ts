@@ -1,11 +1,17 @@
+import { Assets } from "../../systems/assets";
 import { BezierCurve, Path } from "../../systems/paths";
 import { Enemies } from "../enemies";
 import { EnemyShip } from "./enemyship";
 
 export class TransformShip extends EnemyShip {
+    public static readonly tranformImages:string[][] = [
+        [Assets.scorpion],
+        [Assets.bosconian],
+        [Assets.flagship],
+    ];
     public override readonly color: string = "rgba(0,255,0,1)";
     private readonly imageType = this.enemyParams.imageType ?? 0;
-    public override readonly images = Enemies.tranformImages[this.imageType];
+    public override readonly images = TransformShip.tranformImages[this.imageType];
     public override groupID = -Enemies.level;
     public override attackUntilDestroyed: boolean = true;
     public override formationEntrance = Path.attackVector(1, this.location)

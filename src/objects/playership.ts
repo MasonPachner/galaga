@@ -21,7 +21,6 @@ export class PlayerShip extends Ship {
     public thrust: any = [];
     public static attactDelayTotal = 300;
     public attackDelay = PlayerShip.attactDelayTotal;
-    public waveHits: number = 0;
     public shots: number = 0;
     public spawnProtection = 5000;
     public beamData?: BeamData;

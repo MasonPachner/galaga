@@ -2,7 +2,7 @@ import { Enemies } from "../objects/enemies";
 import { EnemyMoveState, EnemyShip } from "../objects/enemy/enemyship";
 import { Player } from "../objects/player";
 import { PlayerMoveState } from "../objects/playership";
-import { Projectiles } from "../objects/projectiles";
+import { Beam, Projectiles } from "../objects/projectiles";
 import { Ship } from "../objects/ship";
 import { Wave } from "../objects/wave";
 import { Assets } from "./assets";
@@ -22,7 +22,7 @@ export class Collisions {
                 if (Utils.distBetween(enemy.location, pro.location) <= pro.size + Ship.size && (enemy.moveState != EnemyMoveState.spinning)) {
                     pro.dirty = true;
                     enemy.setDirty(true);
-                    pro.owner.waveHits += 1;
+                    Player.waveHits += 1;
                     pro.owner.registerHit();
                     if (enemy.lives == 0) {
                         let nextScore = enemy.score();
@@ -67,13 +67,13 @@ export class Collisions {
 
             for (let playerI in Player.players) {
                 let nextP = Player.players[playerI];
-                if (pro.beam) {
+                if (pro instanceof Beam) {
                     if ((nextP.moveState == PlayerMoveState.playerControl || nextP.moveState == PlayerMoveState.moveToSpot) && nextP.spawnProtection < 0 && pro.collidingWithPlayer(nextP.location, Ship.size)) {
                         nextP.moveState = PlayerMoveState.beingBeamed;
                         nextP.beamData = {
                             location: {
                                 x: pro.owner.location.x,
-                                y: pro.owner.location.y + pro.owner.size + Ship.size * 1.5,
+                                y: pro.owner.location.y + Ship.size + Ship.size * 1.5,
                             },
                             owner: pro.owner
                         };

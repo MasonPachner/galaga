@@ -46,7 +46,8 @@ export abstract class EnemyShip extends Ship {
     public timeToFinish = 0;
     public beamGroup = ++Enemies.id;
     public override killedByPlayer = false;
-    public abstract readonly images: any[];
+    public abstract readonly images: string[];
+    public ownsAShip: boolean = false;
     public isTractor = false;
     public formationLocation: Location;
     public formationEntrance?: BezierCurve;
@@ -127,10 +128,8 @@ export abstract class EnemyShip extends Ship {
             this.attackCooldown >= this.attackDelay && !this.isTractor) {
 
             let direction = Utils.angleBetween(Player.players[0].location, this.location);
-            Projectiles.makeProjectile(direction, this.location, this, true, 'rgba(0,0,255,1', Player.players[0].location);
-            let v = Assets.assets.enemyLaser.cloneNode();
-            v.volume = 0.2;
-            Utils.safePlay(v);
+            Projectiles.makeProjectile(direction, this.location, this, 'rgba(0,0,255,1', Player.players[0]?.location);
+            Utils.burstPlay(Assets.enemyLaser,0.2);
             this.attackCooldown = 0;
             this.projectiles--;
         } else {

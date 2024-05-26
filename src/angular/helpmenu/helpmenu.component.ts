@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Persitence } from '../../screens/persistance';
+import { KeyBinding, Persitence } from '../../screens/persistance';
 import { Keyboard } from '../../systems/input-keyboard';
 import { AppRoutes } from '../app/app.routes';
 import { CommonModule } from '@angular/common';
@@ -9,20 +9,20 @@ import { GalagaButtonComponent } from '../galaga-button/galaga-button.component'
 @Component({
   selector: 'app-helpmenu',
   standalone: true,
-  imports: [CommonModule,GalagaButtonComponent],
+  imports: [CommonModule, GalagaButtonComponent],
   templateUrl: './helpmenu.component.html',
   styleUrl: './helpmenu.component.less'
 })
 export class HelpmenuComponent implements OnInit {
 
   constructor(private readonly router: Router) { };
-  protected toChange: string | undefined = undefined;
+  protected toChange: KeyBinding | undefined = undefined;
 
-  protected readonly keys = [
-    'left','right','shoot','pause'
+  protected readonly keys: KeyBinding[] = [
+    KeyBinding.left, KeyBinding.right, KeyBinding.shoot, KeyBinding.pause,
   ]
 
-  public getCurrentBinding(key:string) : string{
+  public getCurrentBinding(key: KeyBinding): string {
     return Persitence.getBinding(key);
   }
 
@@ -30,11 +30,11 @@ export class HelpmenuComponent implements OnInit {
     this.router.navigate([AppRoutes.MainMenu]);
   }
 
-  public markKeyForChange(str:string){
+  public markKeyForChange(str: KeyBinding) {
     this.toChange = str;
   }
 
-  protected getChangeBindingMessage(str: string){
+  protected getChangeBindingMessage(str: string) {
     return "Enter key to set: " + str;
   }
 
@@ -43,7 +43,7 @@ export class HelpmenuComponent implements OnInit {
     Keyboard.register('Escape', () => { this.returnToMenu() });
   }
   public updateKey(e: any) {
-    if(this.toChange == undefined) return;
+    if (this.toChange == undefined) return;
     Persitence.addKeyBindings(this.toChange, e.key);
     this.toChange = undefined;
   }

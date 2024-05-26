@@ -48,15 +48,16 @@ export class Renderer {
     }
 
     public static drawImage(image: string, x: number, y: number, width: number, height: number, rotation: number): void {
-        if(image == null){
-            throw new Error("Image is null");
-        }
         Renderer.context.save();
         Renderer.context.translate(x * Utils.canvas.width, y * Utils.canvas.height);
         Renderer.context.rotate(rotation);
         Renderer.context.translate(-x * Utils.canvas.width, -y * Utils.canvas.height);
+        const loadedImage = Assets.images.get(image);
+        if(loadedImage == undefined){
+            throw new Error(`Image: ${image} is undefined`);
+        }
         Renderer.context.drawImage(
-            Assets.images.get(image),
+            loadedImage,
             (x - width) * Utils.canvas.width,
             (y - height) * Utils.canvas.height,
             (width * 2) * Utils.canvas.width,

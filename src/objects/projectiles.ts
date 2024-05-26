@@ -2,109 +2,124 @@ import { Assets } from "../systems/assets";
 import { ParticleSystem } from "../systems/particle-system";
 import { Renderer } from "../systems/renderer";
 import { Utils } from "../systems/utils"
-import { Location } from "../systems/location";;
+import { Location } from "../systems/location";
+import { Ship } from "./ship";
+import { EnemyMoveState, EnemyShip } from "./enemy/enemyship";
+
+
+export abstract class Projectile {
+    public dirty: boolean = false;
+    public abstract owner: Ship;
+    public abstract speed: number;
+    public abstract rotation: number;
+    public lifespan: number = 7000;
+    public abstract color: string;
+    public size: number = 0.005;
+    public abstract location: Location;
+    public abstract updateLocation(elapsedTime: number): void;
+    public abstract handleDirty(): void;
+
+    constructor(){
+        
+    }
+    public get playerDamage() {return this.owner instanceof EnemyShip;}
+}
+
+export class Beam extends Projectile {
+    public override speed: number = 0.0001;
+    public strokeSize: number = 0.002;
+    public color: string;
+
+    constructor(public override rotation: number, public override location: Location, public override readonly owner: EnemyShip, public readonly arcSize: number, public readonly group: number){
+        super();
+        this.color =  owner.projectiles % 2 == 0 ? "rgba(0,0,255,1)" : "rgba(255,255,255,1)";
+
+        this.location = {
+            x: Math.cos(rotation) * Ship.size + location.x,
+            y: Math.sin(rotation) * Ship.size + location.y,
+        };
+        this.rotation += Math.PI;
+    }
+
+    public collidingWithPlayer(playerLocation: Location, playerSize: number){
+        let COLLISION_POINTS = 10;
+        if (this.owner.dirty || this.owner.ownsAShip || this.owner.moveState != EnemyMoveState.tractoring) {
+            this.dirty = true;
+            return false;
+        }
+        for (let i = 0; i < COLLISION_POINTS; i++) {
+            let arcChange = i * this.arcSize / COLLISION_POINTS;
+            if (Utils.distBetween(playerLocation,
+                {
+                    x: this.location.x + Math.cos(this.rotation - (this.arcSize / 2) + arcChange) * this.size,
+                    y: this.location.y + Math.sin(this.rotation - (this.arcSize / 2) + arcChange) * this.size,
+                }) <= this.strokeSize + playerSize) {
+                this.owner.ownsAShip = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public updateLocation(elapsedTime: number) {
+        this.size += this.speed * elapsedTime * (this.owner.tractorExpand ? 1 : -1);
+        if (this.size < 0.0001)
+            this.dirty = true;
+        if (this.location.y + this.size > 1)
+            this.dirty = true;
+
+    }
+
+    public handleDirty () {
+        //console.log("Beam Hit");
+    }
+}
+
+export class Bullet extends Projectile {
+    public missDist: number = 0;
+    public override speed: number;
+    public range?: number;
+    constructor(public override rotation: number, public override location: Location, public override readonly owner: Ship,public override readonly  color: string, public readonly target: Location | undefined) {
+        super()
+        this.speed = (this.owner instanceof EnemyShip ? 0.4 : 1) * 0.0007
+
+        this.location = {
+            x: Math.cos(rotation) * Ship.size + location.x,
+            y: Math.sin(rotation) * Ship.size + location.y,
+        };
+        if (target != undefined) {
+            this.range = Math.tan((this.rotation - Math.PI) - Math.PI / 2);
+        }
+    }
+    public updateLocation(elapsedTime: number) {
+        let prevY = this.location.y;
+        this.location.x -= Math.cos(this.rotation) * this.speed * elapsedTime;
+        this.location.y -= Math.sin(this.rotation) * this.speed * elapsedTime;
+        if (this.target != undefined && this.location.y >= this.target.y && prevY <= this.target.y) { //Bullet paper check
+            this.missDist = this.target.y - this.location.x;
+        }
+    }
+    public handleDirty() {
+        this.owner.returnMissile();
+    }
+}
 
 
 export class Projectiles {
-    public static proj: any[] = [];
+    public static proj: Projectile[] = [];
 
-    public static playerProjectile = Assets.assets.playerPro;
-
-    public static enemyProjectile = Assets.assets.enemyPro;
-
-    public static makeProjectile(direction: number, inlocation: Location, owner: any, playerDamage: boolean, color: string, target: Location | null) {
-        let project: any = {
-            owner: owner,
-            dirty: false,
-            playerProjectile: !playerDamage,
-            speed: (playerDamage ? 0.4 : 1) * 0.0007,
-            rotation: direction,
-            lifespan: 7000,
-            color: color,
-            size: 0.005,
-            beam: false,
-            playerDamage: playerDamage,
-            location: {
-                x: Math.cos(direction) * owner.size + inlocation.x,
-                y: Math.sin(direction) * owner.size + inlocation.y,
-            },
-            updateLocation: function (elapsedTime: number) {
-                let prevY = this.location.y;
-                this.location.x -= Math.cos(this.rotation) * this.speed * elapsedTime;
-                this.location.y -= Math.sin(this.rotation) * this.speed * elapsedTime;
-                if (this.target != null && this.location.y >= this.target.y && prevY <= this.target.y) { //Bullet paper check
-                    this.missDist = this.target.y - this.location.x;
-                }
-            },
-            handleDirty: function () {
-                owner.returnMissile();
-            },
-        };
-        project.missDist = 0;
-        if (target != null) {
-            project.target = { x: target.x, y: target.y };
-            project.range = Math.tan((project.rotation - Math.PI) - Math.PI / 2);
-        }
-        Projectiles.proj.push(project);
+    public static makeProjectile(direction: number, inlocation: Location, owner: Ship, color: string, target: Location | undefined) {
+        Projectiles.proj.push(new Bullet(direction, inlocation, owner, color, target));
     }
 
-
-    public static makeBeam(direction: number, inlocation: Location, owner: any, arcSize: number, group: number) {
-        let project: any = {
-            owner: owner,
-            dirty: false,
-            playerProjectile: false,
-            speed: 0.0001,
-            rotation: direction + Math.PI,
-            lifespan: 7000,
-            strokeSize: 0.002,
-            size: 0.005,
-            beam: true,
-            color: owner.projectiles % 2 == 0 ? "rgba(0,0,255,1)" : "rgba(255,255,255,1)",
-            playerDamage: true,
-            arcSize: arcSize,
-            group: group,
-            location: {
-                x: Math.cos(direction) * owner.size + inlocation.x,
-                y: Math.sin(direction) * owner.size + inlocation.y,
-            },
-            collidingWithPlayer: function (playerLocation: Location, playerSize: number): boolean {
-                let COLLISION_POINTS = 10;
-                if (owner.dirty || owner.ownsAShip || owner.moveState != 5) {
-                    this.dirty = true;
-                    return false;
-                }
-                for (let i = 0; i < COLLISION_POINTS; i++) {
-                    let arcChange = i * this.arcSize / COLLISION_POINTS;
-                    if (Utils.distBetween(playerLocation,
-                        {
-                            x: this.location.x + Math.cos(this.rotation - (this.arcSize / 2) + arcChange) * this.size,
-                            y: this.location.y + Math.sin(this.rotation - (this.arcSize / 2) + arcChange) * this.size,
-                        }) <= this.strokeSize + playerSize) {
-                        owner.ownsAShip = true;
-                        return true;
-                    }
-                }
-                return false;
-            },
-            updateLocation: function (elapsedTime: number) {
-                this.size += this.speed * elapsedTime * (owner.tractorExpand ? 1 : -1);
-                if (this.size < 0.0001)
-                    this.dirty = true;
-                if (this.location.y + this.size > 1)
-                    this.dirty = true;
-
-            },
-            handleDirty: function () {
-                //console.log("Beam Hit");
-            },
-        };
-        Projectiles.proj.push(project);
+    public static makeBeam(direction: number, inlocation: Location, owner: EnemyShip, arcSize: number, group: number) {
+        Projectiles.proj.push(new Beam(direction, inlocation, owner, arcSize, group));
     }
     public static renderProjectiles() {
+        console.log(Projectiles.proj.length);
         Projectiles.proj.forEach((e) => {
-            if (!e.beam) {
-                Renderer.drawImage(e.playerDamage ? Projectiles.playerProjectile : Projectiles.enemyProjectile,
+            if (e instanceof Bullet) {
+                Renderer.drawImage(e.playerDamage ? Assets.playerPro :  Assets.enemyPro,
                     e.location.x,
                     e.location.y,
                     e.size, e.size,
@@ -112,7 +127,7 @@ export class Projectiles {
                 // if(e.playerDamage)
                 //     MyGame.renderer.drawLine('rgba(255,255,0,1)', e.location.x,
                 //     e.location.y,e.target.x,e.target.y);
-            } else {
+            } else if(e instanceof Beam) {
                 Renderer.strokeArc(e.color,
                     e.location.x,
                     e.location.y,
@@ -134,7 +149,7 @@ export class Projectiles {
             pro.updateLocation(elapsedTime);
             if (pro.location.y < 0 || pro.location.y > 1) {
                 pro.dirty = true;
-            } else if (!pro.beam) {
+            } else if (pro instanceof Bullet) {
                 ParticleSystem.projectileThrust(
                     pro.location.x + Math.cos(pro.rotation) * pro.size / 2,
                     pro.location.y + Math.sin(pro.rotation) * pro.size / 2,
@@ -145,7 +160,7 @@ export class Projectiles {
         Projectiles.clean();
     }
     public static clean() {
-        let cleanProj: any = [];
+        let cleanProj: Projectile[] = [];
         Projectiles.proj.forEach(e => {
             if (!e.dirty) {
                 cleanProj.push(e);
@@ -155,10 +170,10 @@ export class Projectiles {
         });
         Projectiles.proj = cleanProj;
     }
-    public static beamGroup(request: any) {
-        let group: any = [];
+    public static beamGroup(request: number) {
+        let group: Projectile[] = [];
         Projectiles.proj.forEach(e => {
-            if (e.beam && e.group == request) {
+            if (e instanceof Beam && e.group == request) {
                 group.push(e);
             }
         });

@@ -5,7 +5,7 @@ import { Enemies } from '../../objects/enemies';
 import { Player } from '../../objects/player';
 import { Projectiles } from '../../objects/projectiles';
 import { Wave } from '../../objects/wave';
-import { Persitence } from '../../screens/persistance';
+import { KeyBinding, Persitence } from '../../screens/persistance';
 import { GalagaScreen } from '../../screens/galagascreen';
 import { Sparkle } from '../../systems/background-sparkle';
 import { Collisions } from '../../systems/collisions';
@@ -31,9 +31,6 @@ export class GameplayComponent implements OnInit{
   private forceStop = false;
 
   constructor(private readonly router: Router, private readonly activatedRoute: ActivatedRoute) { }
-  public processInput() {
-    Keyboard.update();
-  }
 
   public render() {
     Renderer.clear();
@@ -99,7 +96,7 @@ export class GameplayComponent implements OnInit{
 
 
   public gameloop(time: number) {
-    this.processInput();
+    Keyboard.update(time);
     let elapsedTime = (time - this.lastTimeStamp);
     this.update(elapsedTime);
     this.render();
@@ -114,7 +111,7 @@ export class GameplayComponent implements OnInit{
     if (this.forceStop) {
       return;
     }
-    requestAnimationFrame(this.gameloop);
+    requestAnimationFrame((dt) => this.gameloop(dt));
   }
 
   public returnToMain() {
@@ -134,8 +131,7 @@ export class GameplayComponent implements OnInit{
     }
     this.lastTimeStamp = performance.now();
     this.paused = false;
-    Keyboard.initialize();
-    Keyboard.register(Persitence.getBinding('pause'), () => {
+    Keyboard.register(Persitence.getBinding(KeyBinding.pause), () => {
       this.paused = true;
       if (Player.isGameOver) {
         GalagaScreen.getElement('id-continue').innerHTML = "Restart";
@@ -145,13 +141,14 @@ export class GameplayComponent implements OnInit{
       GalagaScreen.getElement("id-overlay").style.left = ((Utils.canvas.width - 300) / 2).toString();
     });
     GalagaScreen.getElement('id-continue').innerHTML = "Continue";
-    Keyboard.register(Persitence.getBinding('left'), () => {
+    Keyboard.register(Persitence.getBinding(KeyBinding.left), () => {
+      console.log("Left");
       Player.inputMove(-1);
     });
-    Keyboard.register(Persitence.getBinding('right'), () => {
+    Keyboard.register(Persitence.getBinding(KeyBinding.right), () => {
       Player.inputMove(1);
     });
-    Keyboard.register(Persitence.getBinding('shoot'), () => {
+    Keyboard.register(Persitence.getBinding(KeyBinding.shoot), () => {
       Player.inputShoot();
     });
     this.score = 0;
