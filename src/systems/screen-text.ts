@@ -4,7 +4,7 @@ import { Renderer } from "./renderer";
 export class ScreenText {
     private static currentItems: any = [];
 
-    public static update(elapsedTime) {
+    public static update(elapsedTime: number) {
         let copy: any = [];
         for (let textI in ScreenText.currentItems) {
             let text = ScreenText.currentItems[textI];

@@ -2,12 +2,12 @@ import { Location } from "./location";
 import { Utils } from "./utils";
 
 
-enum Direction {
+export enum Direction {
     left = -1,
     right = 1,
 }
 
-enum PathType {
+export enum PathType {
     single = "single",
     double = "double",
     alt = "alt",

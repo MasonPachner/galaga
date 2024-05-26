@@ -259,7 +259,7 @@ export class Player {
                 };
                 player.rotation = Math.PI / 2;
             }
-            if (Utils.distBetween(player.location, player.beamData.location.y) < player.size || player.location.y > Player.playerY) {
+            if (Utils.distBetween(player.location, player.beamData.location) < player.size || player.location.y > Player.playerY) {
                 player.location.x = player.beamData.location.x;
                 player.location.y = player.beamData.location.y;
                 if (!player.beamData.owner.dirty) { // Tracted!

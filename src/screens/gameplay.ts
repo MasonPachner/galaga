@@ -128,13 +128,13 @@ export class GameplayScreen extends GalagaScreen {
         Keyboard.register(Persitence.getBinding('pause'), () => {
             this.paused = true;
             if (Player.isGameOver) {
-                document.getElementById('id-continue').innerHTML = "Restart";
+                GalagaScreen.getElement('id-continue').innerHTML = "Restart";
             }
-            document.getElementById("id-overlay").classList.add('active');
-            document.getElementById("id-overlay").style.top = (Utils.canvas.height - 100) / 2;
-            document.getElementById("id-overlay").style.left = (Utils.canvas.width - 300) / 2;
+            GalagaScreen.getElement("id-overlay").classList.add('active');
+            GalagaScreen.getElement("id-overlay").style.top = ((Utils.canvas.height - 100) / 2).toString();
+            GalagaScreen.getElement("id-overlay").style.left = ((Utils.canvas.width - 300) / 2).toString();
         });
-        document.getElementById('id-continue').innerHTML = "Continue";
+        GalagaScreen.getElement('id-continue').innerHTML = "Continue";
         Keyboard.register(Persitence.getBinding('left'), () => {
             Player.inputMove(-1);
         });
@@ -158,7 +158,7 @@ export class GameplayScreen extends GalagaScreen {
             'click',
             function () {
                 GameplayScreen.instance.reset();
-                document.getElementById("id-overlay").classList.remove('active');
+                GalagaScreen.getElement("id-overlay").classList.remove('active');
                 GameplayScreen.instance.forceStop = true;
                 Galaga.showScreen('main-menu');
             });
@@ -169,7 +169,7 @@ export class GameplayScreen extends GalagaScreen {
                 GameplayScreen.instance.paused = false;
                 document.getElementById("id-overlay")?.classList.remove('active');
                 if (Player.isGameOver) {
-                    document.getElementById('id-continue').innerHTML = "Restart";
+                    GalagaScreen.getElement('id-continue').innerHTML = "Restart";
                     GameplayScreen.instance.forceStop = true;
                     Galaga.showScreen('game-play', GameplayScreen.instance.attract);
                 }

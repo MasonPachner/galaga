@@ -1,11 +1,11 @@
 import { Enemies } from "../objects/enemies";
 import { EnemyParams, EnemyShip } from "../objects/enemy/enemyship";
 import { Wave } from "../objects/wave";
-import { Path, TypedBezier } from "./paths";
+import { BezierCurve, Path, PathType, TypedBezier } from "./paths";
 
 export class WaveGenerator {
     private static groupID = 0;
-    public static wave1(waves) {
+    public static wave1() {
 
         let groups: any = [];
         let wave: any = {
@@ -14,7 +14,7 @@ export class WaveGenerator {
         };
         let group: any = [];
         for (let i = 0; i < 6; i++) {
-            group.push(waves.makeButterfly({
+            group.push(Enemies.makeButterfly({
                 formationLocation: {
                     y: 1,
                     x: 2 + i,
@@ -27,7 +27,7 @@ export class WaveGenerator {
 
         group = [];
         for (let i = 0; i < 12; i++) {
-            group.push(waves.makeBee({
+            group.push(Enemies.makeBee({
                 formationLocation: {
                     x: 2 + i % 6,
                     y: 2 + Math.floor(i / 6),
@@ -40,7 +40,7 @@ export class WaveGenerator {
 
         group = [];
         for (let i = 0; i < 4; i++) {
-            group.push(waves.makeFlagship({
+            group.push(Enemies.makeBoss({
                 formationLocation: {
                     x: 3 + i,
                     y: 0,
@@ -53,8 +53,7 @@ export class WaveGenerator {
         wave.groups = groups;
         return wave;
     }
-    public static wave2(waves) {
-
+    public static wave2() {
         let groups: any = [];
         let wave: any = {
             state: 0,
@@ -62,7 +61,7 @@ export class WaveGenerator {
         };
         let group: any = [];
         for (let i = 0; i < 8; i++) {
-            group.push(waves.makeBee({
+            group.push(Enemies.makeBee({
                 formationLocation: {
                     y: 1,
                     x: 1 + i,
@@ -75,7 +74,7 @@ export class WaveGenerator {
 
         group = [];
         for (let i = 0; i < 20; i++) {
-            group.push(waves.makeButterfly({
+            group.push(Enemies.makeButterfly({
                 formationLocation: {
                     x: i % 10,
                     y: 3 + Math.floor(i / 10),
@@ -89,7 +88,7 @@ export class WaveGenerator {
         group = [];
         let pathToUse = Path.topRightSweep.splitPath(20);
         for (let i = 0; i < 6; i++) {
-            group.push(waves.makeFlagship({
+            group.push(Enemies.makeBoss({
                 formationLocation: {
                     x: 2 + i,
                     y: 0,
@@ -102,7 +101,7 @@ export class WaveGenerator {
         wave.groups = groups;
         return wave;
     }
-    public static wave3(waves) {
+    public static wave3() {
 
         let groups: any = [];
         let wave: any = {
@@ -112,14 +111,22 @@ export class WaveGenerator {
 
         let group: any = [];
         for (let i = 0; i < 20; i++) {
-            group.push(waves.makeButterfly({
+            group.push(Enemies.makeButterfly({
+                formationLocation: {
+                    x: i,
+                    y: 1,
+                },
                 delay: (Math.floor(i / 2) * 300),
                 formationEntrance: i % 2 == 0 ? Path.challengeLeftLoop : Path.challengeRightLoop,
             }));
         }
         group = [];
         for (let i = 0; i < 20; i++) {
-            group.push(waves.makeBee({
+            group.push(Enemies.makeBee({
+                formationLocation: {
+                    x: i,
+                    y: 2,
+                },
                 delay: (Math.floor(i / 2) * 300),
                 formationEntrance: i % 2 == 0 ? Path.challengeLeftSweep : Path.challengeRightSweep,
             }));
@@ -129,41 +136,29 @@ export class WaveGenerator {
         return wave;
     }
 
-    public static getPath(index, path, pathType) {
-        if (pathType == "double") {
-            return path[Math.abs(index % 2)];
+    public static getPath(index: number, path: TypedBezier, pathType: PathType): BezierCurve {
+        if (path.curves instanceof Array) {
+            return path.curves[Math.abs(index % 2)];
         }
-        if (pathType == "single") {
-            return path;
-        }
-        if (pathType == "alt") {
-            return path[Math.abs(index % 2)];
-        }
-        return [-1];
+        return path.curves;
     }
-    public static getDelay(index, pathType, groupCount) {
-        if (pathType == "double") {
+    public static getDelay(index: number, pathType: PathType, groupCount: number): number {
+        if (pathType == PathType.double) {
             return Math.floor((groupCount % 2 == 0 ? index + 1 : index) / 2) * 300;
         }
-        if (pathType == "single") {
-            return index * 300;
-        }
-        if (pathType == "alt") {
+        if (pathType == PathType.alt) {
             return Math.floor((groupCount % 2 == 0 ? index + 1 : index) / 2) * 300;
         }
-        return 30;
+        return index * 300;
     }
-    public static getId(index, pathType, initialId) {
-        if (pathType == "double") {
+    public static getId(index: number, pathType: PathType, initialId: number): number {
+        if (pathType == PathType.double) {
             return (index % 2) * 60 + initialId;
         }
-        if (pathType == "single") {
-            return initialId;
-        }
-        if (pathType == "alt") {
+        if (pathType == PathType.alt) {
             return (index % 2) * 60 + initialId;
         }
-        return 30;
+        return initialId;
     }
     public static randomWave(width: number, height: number) {
         let groupCount = 5;

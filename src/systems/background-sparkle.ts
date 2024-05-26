@@ -34,7 +34,7 @@ export class Sparkle {
                 `rgba(${sparkle.red},${sparkle.green},${sparkle.blue},1)`);
         }
     }
-    public static drawSparkle(sparkle) {
+    public static drawSparkle(sparkle: any) {
         let lines: any = [];
         let initialAngle = sparkle.initialAngle;
         let prevX = Math.cos(initialAngle) * sparkle.scales[sparkle.scales.length - 1] * sparkle.opacity * sparkle.size + sparkle.x;
@@ -61,7 +61,7 @@ export class Sparkle {
         Renderer.fillPath(lines, `rgba(${sparkle.red + 20},${sparkle.green + 20},${sparkle.blue + 20},${sparkle.opacity - 0.5})`);
     }
 
-    public static update(elapsedTime) {
+    public static update(elapsedTime: number) {
         let cleanSparkles: any = [];
         for (let sparkleI in Sparkle.sparkles) {
             let sparkle = Sparkle.sparkles[sparkleI];

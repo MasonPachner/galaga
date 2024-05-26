@@ -132,18 +132,18 @@ export class Assets {
     // onComplete is invoked once per 'assets' array as: onComplete()
     //
     //------------------------------------------------------------------
-    public static loadAssets(assets, onSuccess, onError, onComplete) {
+    public static loadAssets(assets: any, onSuccess: any, onError: any, onComplete: () => void) {
         //
         // When we run out of things to load, that is when we call onComplete.
         if (assets.length > 0) {
             let entry = assets[0];
             Assets.loadAsset(entry.source,
-                function (asset) {
+                function (asset: any) {
                     onSuccess(entry, asset);
                     assets.shift(); // Alternatively: assets.splice(0, 1);
                     Assets.loadAssets(assets, onSuccess, onError, onComplete);
                 },
-                function (error) {
+                function (error: any) {
                     onError(error);
                     assets.shift(); // Alternatively: assets.splice(0, 1);
                     Assets.loadAssets(assets, onSuccess, onError, onComplete);
@@ -153,7 +153,7 @@ export class Assets {
         }
     }
 
-    private static loadAsset(source, onSuccess, onError) {
+    private static loadAsset(source: any, onSuccess: any, onError: any) {
         let xhr = new XMLHttpRequest();
         let fileExtension = source.substr(source.lastIndexOf('.') + 1); // Source: http://stackoverflow.com/questions/680929/how-to-extract-extension-from-filename-string-in-javascript
 
@@ -198,10 +198,10 @@ export class Assets {
     // Start with loading the assets, then the scripts.
     public static initialize() {
         Assets.loadAssets(Assets.assetOrder,
-            function (source, asset) { // Store it on success
+            function (source: any, asset: any) { // Store it on success
                 Assets.assets[source.key] = asset;
             },
-            function (error) {
+            function (error: any) {
                 console.log(error);
             },
             function () {

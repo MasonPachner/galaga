@@ -11,11 +11,11 @@ export class Keyboard {
         Keyboard.handlers = new Map();
     }
 
-    public static keyPress(e) {
-        Keyboard.keys[e.key] = e.timeStamp;
+    public static keyPress(e: any) {
+        Keyboard.keys.set(e.key, e.timeStamp);
     }
 
-    public static keyRelease(e) {
+    public static keyRelease(e: any) {
         Keyboard.keys.delete(e.key);
     }
 

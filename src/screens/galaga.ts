@@ -104,7 +104,7 @@ export class Persitence {
         }
     }
 
-    public static add(key: string, value: { name: string, score: number }) {
+    public static add(key: string, value: any) {
         Persitence.highScores.set(key, value);
         localStorage['MyGame.galagaHighScores'] = JSON.stringify(Persitence.highScores);
     }
@@ -124,8 +124,12 @@ export class Persitence {
         localStorage['MyGame.keyBindings'] = JSON.stringify(Persitence.keyBindings);
     }
 
-    public static getBinding(key: string): string | undefined {
-        return Persitence.keyBindings.get(key);
+    public static getBinding(key: string): string {
+        const binding = Persitence.keyBindings.get(key);
+        if (binding === undefined) {
+            throw new Error(`Key binding for ${key} is undefined.`);
+        }
+        return binding;
     }
 
     public static report() {

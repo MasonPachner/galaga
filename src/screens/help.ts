@@ -13,34 +13,34 @@ export class HelpScreen extends GalagaScreen {
             function () { Galaga.showScreen('main-menu'); });
         document.getElementById('id-left')?.addEventListener(
             'click',
-            function () { HelpScreen.instance.toChange = 'left'; document.getElementById('id-info').innerHTML = "Select key for left"; });
+            function () { HelpScreen.instance.toChange = 'left'; GalagaScreen.getElement('id-info').innerHTML = "Select key for left"; });
         document.getElementById('id-right')?.addEventListener(
             'click',
-            function () { HelpScreen.instance.toChange = 'right'; document.getElementById('id-info').innerHTML = "Select key for right"; });
+            function () { HelpScreen.instance.toChange = 'right'; GalagaScreen.getElement('id-info').innerHTML = "Select key for right"; });
         document.getElementById('id-shoot')?.addEventListener(
             'click',
-            function () { HelpScreen.instance.toChange = 'shoot'; document.getElementById('id-info').innerHTML = "Select key for shoot"; });
+            function () { HelpScreen.instance.toChange = 'shoot'; GalagaScreen.getElement('id-info').innerHTML = "Select key for shoot"; });
         document.getElementById('id-pause')?.addEventListener(
             'click',
-            function () { HelpScreen.instance.toChange = 'pause'; document.getElementById('id-info').innerHTML = "Select key for pause"; });
-        document.getElementById('id-shoot').innerHTML = `Shoot: ${Persitence.getBinding('shoot') == ' ' ? 'Space' : Persitence.getBinding('shoot')}`;
-        document.getElementById('id-left').innerHTML = `Left: ${Persitence.getBinding('left')}`;
-        document.getElementById('id-right').innerHTML = `Right: ${Persitence.getBinding('right')}`;
-        document.getElementById('id-pause').innerHTML = `Pause: ${Persitence.getBinding('pause')}`;
+            function () { HelpScreen.instance.toChange = 'pause'; GalagaScreen.getElement('id-info').innerHTML = "Select key for pause"; });
+        GalagaScreen.getElement('id-shoot').innerHTML = `Shoot: ${Persitence.getBinding('shoot') == ' ' ? 'Space' : Persitence.getBinding('shoot')}`;
+        GalagaScreen.getElement('id-left').innerHTML = `Left: ${Persitence.getBinding('left')}`;
+        GalagaScreen.getElement('id-right').innerHTML = `Right: ${Persitence.getBinding('right')}`;
+        GalagaScreen.getElement('id-pause').innerHTML = `Pause: ${Persitence.getBinding('pause')}`;
     }
 
     public run() {
         Keyboard.register('Escape', () => { Galaga.showScreen('main-menu'); });
     }
-    public updateKey(e) {
+    public updateKey(e: any) {
         if (this.toChange == null) return;
         Persitence.addKeyBindings(this.toChange, e.key);
         //Too lazy to check. Update all :D
-        document.getElementById('id-shoot').innerHTML = `Shoot: ${Persitence.getBinding('shoot') == ' ' ? 'Space' : Persitence.getBinding('shoot')}`;
-        document.getElementById('id-left').innerHTML = `Left: ${Persitence.getBinding('left')}`;
-        document.getElementById('id-right').innerHTML = `Right: ${Persitence.getBinding('right')}`;
-        document.getElementById('id-pause').innerHTML = `Pause: ${Persitence.getBinding('pause')}`;
-        document.getElementById('id-info').innerHTML = "";
+        GalagaScreen.getElement('id-shoot').innerHTML = `Shoot: ${Persitence.getBinding('shoot') == ' ' ? 'Space' : Persitence.getBinding('shoot')}`;
+        GalagaScreen.getElement('id-left').innerHTML = `Left: ${Persitence.getBinding('left')}`;
+        GalagaScreen.getElement('id-right').innerHTML = `Right: ${Persitence.getBinding('right')}`;
+        GalagaScreen.getElement('id-pause').innerHTML = `Pause: ${Persitence.getBinding('pause')}`;
+        GalagaScreen.getElement('id-info').innerHTML = "";
         this.toChange = null;
     }
 };

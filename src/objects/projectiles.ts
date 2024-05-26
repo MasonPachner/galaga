@@ -3,36 +3,17 @@ import { ParticleSystem } from "../systems/particle-system";
 import { Renderer } from "../systems/renderer";
 import { Utils } from "../systems/utils"
 import { Location } from "../systems/location";;
-export interface Projectile {
-    owner: any;
-    dirty: boolean;
-    playerProjectile: boolean;
-    speed: number;
-    rotation: number;
-    lifespan: number;
-    color: string;
-    size: number;
-    beam: boolean;
-    playerDamage: boolean;
-    location: Location;
-    updateLocation: (elapsedTime: number) => void;
-    handleDirty: () => void;
-    missDist?: number;
-    target?: Location;
-    range?: number;
-}
-
 
 
 export class Projectiles {
-    public static proj: Projectile[] = [];
+    public static proj: any[] = [];
 
     public static playerProjectile = Assets.assets.playerPro;
 
     public static enemyProjectile = Assets.assets.enemyPro;
 
     public static makeProjectile(direction: number, inlocation: Location, owner: any, playerDamage: boolean, color: string, target: Location | null) {
-        let project: Projectile = {
+        let project: any = {
             owner: owner,
             dirty: false,
             playerProjectile: !playerDamage,
@@ -68,7 +49,7 @@ export class Projectiles {
     }
 
 
-    public static makeBeam(direction: number, inlocation: Location, owner: any, arcSize: number, group: string) {
+    public static makeBeam(direction: number, inlocation: Location, owner: any, arcSize: number, group: number) {
         let project: any = {
             owner: owner,
             dirty: false,
@@ -148,7 +129,7 @@ export class Projectiles {
         });
     }
 
-    public static update(elapsedTime) {
+    public static update(elapsedTime: number) {
         Projectiles.proj.forEach(pro => {
             pro.updateLocation(elapsedTime);
             if (pro.location.y < 0 || pro.location.y > 1) {
@@ -174,7 +155,7 @@ export class Projectiles {
         });
         Projectiles.proj = cleanProj;
     }
-    public static beamGroup(request) {
+    public static beamGroup(request: any) {
         let group: any = [];
         Projectiles.proj.forEach(e => {
             if (e.beam && e.group == request) {

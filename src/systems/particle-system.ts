@@ -1,10 +1,18 @@
 import { Random } from "./random";
 import { Renderer } from "./renderer";
 
+interface ParticleSpec {
+    center: { x: number, y: number };
+    size: { mean: number, stdev: number };
+    speed: { mean: number, stdev: number };
+    lifetime: { mean: number, stdev: number };
+    color: string;
+    count: number;
+}
 export class ParticleSystem {
     private static systems: any = [];
 
-    public static newSystem(spec, arc) {
+    public static newSystem(spec: any, arc: any) {
         let system: any = {
             particles: [],
             spec: spec,
@@ -15,9 +23,9 @@ export class ParticleSystem {
         ParticleSystem.systems.push(system);
     }
 
-    public static create(spec, arc) {
+    public static create(spec: ParticleSpec, arc: any | null): any {
         let size = Random.nextGaussian(spec.size.mean, spec.size.stdev);
-        let p = {
+        let p: any = {
             center: { x: spec.center.x, y: spec.center.y },
             size: { x: Math.max(0, size), y: size },
             direction: arc == null ? Random.nextCircleVector() : Random.nextArcVector(arc.range, arc.direction),
@@ -63,7 +71,7 @@ export class ParticleSystem {
             }
         }
     }
-    public static ufoExplosion(x, y, color) {
+    public static ufoExplosion(x: number, y: number, color: string) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: 0.0014, stdev: 0.0005 },
@@ -73,7 +81,7 @@ export class ParticleSystem {
             count: 200,
         }, null);
     }
-    public static playerExplosion(x, y) {
+    public static playerExplosion(x: number, y: number) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: 0.0007, stdev: 0.0002 },
@@ -99,7 +107,7 @@ export class ParticleSystem {
             count: 300,
         }, null);
     }
-    public static shipThrust(x, y, arc) {
+    public static shipThrust(x: number, y: number, arc: number) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: 0.002, stdev: 0.0025 },
@@ -110,7 +118,7 @@ export class ParticleSystem {
         }, arc);
 
     }
-    public static projectileThrust(x, y, arc, color) {
+    public static projectileThrust(x: number, y: number, arc: any, color: string) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: 0.002, stdev: 0.0 },
@@ -121,7 +129,7 @@ export class ParticleSystem {
         }, arc);
 
     }
-    public static transformOccuring(x, y, arc) {
+    public static transformOccuring(x: number, y: number, arc: any) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: 0.0002, stdev: 0.0 },
@@ -132,7 +140,7 @@ export class ParticleSystem {
         }, arc);
 
     }
-    public static tractorBeam(x, y, arc, color) {
+    public static tractorBeam(x: number, y: number, arc: number, color: string) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: .0007, stdev: 0.0 },
@@ -142,7 +150,7 @@ export class ParticleSystem {
             count: 120,
         }, arc);
     }
-    public static lifeGained(x, y) {
+    public static lifeGained(x: number, y: number) {
         ParticleSystem.newSystem({
             center: { x: x, y: y },
             size: { mean: .0008, stdev: 0.0 },
