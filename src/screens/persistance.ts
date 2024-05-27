@@ -25,7 +25,7 @@ export class Persitence {
     }
 
     public static add(key: string, value: any) {
-        Persitence.highScores.set(key, value);
+        // Persitence.highScores.set(key, value);
         localStorage['MyGame.galagaHighScores'] = JSON.stringify(Persitence.highScores);
     }
 

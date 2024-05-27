@@ -116,7 +116,7 @@ export class Enemies {
             if (enemy.moveState != EnemyMoveState.noUpdate) {
                 enemy.delay -= elapsedTime;
             }
-            return
+            return;
         }
         if (enemy.moveState == EnemyMoveState.followingEntrancePath) { // Entrance path
             if (enemy.currentTime >= enemy.timeToFinish) {
@@ -141,7 +141,7 @@ export class Enemies {
                 enemy.buddies = 0;
                 enemy.overrideAttack = false;
             }
-        } else if (enemy.moveState == EnemyMoveState.alignInFormation) { // rotate to formation location. Yeah It's state 7.
+        } else if (enemy.moveState == EnemyMoveState.alignInFormation) { // rotate to formation location.
             enemy.rotation = Utils.cycle(enemy.rotation)
             let dir = (enemy.rotation > Math.PI / 2 && enemy.rotation < Math.PI * 3 / 2) ? 1 : -1;
             enemy.rotation = enemy.rotation + dir * elapsedTime / 450;

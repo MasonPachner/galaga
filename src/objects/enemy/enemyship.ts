@@ -68,6 +68,7 @@ export abstract class EnemyShip extends Ship {
         super();
         this.formationLocation = this.enemyParams.formationLocation;
         this.formationEntrance = this.enemyParams.formationEntrance;
+        this.timeToFinish = 6000;
         if (this.enemyParams.delay) {
             this.delay = this.enemyParams.delay;
         }

@@ -116,7 +116,6 @@ export class Projectiles {
         Projectiles.proj.push(new Beam(direction, inlocation, owner, arcSize, group));
     }
     public static renderProjectiles() {
-        console.log(Projectiles.proj.length);
         Projectiles.proj.forEach((e) => {
             if (e instanceof Bullet) {
                 Renderer.drawImage(e.playerDamage ? Assets.playerPro :  Assets.enemyPro,

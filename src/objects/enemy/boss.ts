@@ -6,7 +6,7 @@ import { EnemyMoveState, EnemyShip } from "./enemyship";
 
 export class BossShip extends EnemyShip {
     public override readonly color: string = "rgba(230,40,230,1)";
-    public override readonly images = [Assets.boss1, Assets.boss2];
+    public override readonly images = [Assets.boss2, Assets.boss1];
     public override readonly lives = 2;
 
     public override score(): number {

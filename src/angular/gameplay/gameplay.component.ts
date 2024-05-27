@@ -123,7 +123,7 @@ export class GameplayComponent implements OnInit{
   }
 
   public ngOnInit() {
-    this.attract = this.activatedRoute.snapshot.paramMap.get("attractMode") === 'true';
+    this.attract = this.activatedRoute.snapshot.queryParams["attractMode"] === 'true';
     if (this.attract) {
       window.addEventListener('mousemove', this.returnToMain, false);
       window.addEventListener('mousedown', this.returnToMain, false);
@@ -142,7 +142,6 @@ export class GameplayComponent implements OnInit{
     });
     GalagaScreen.getElement('id-continue').innerHTML = "Continue";
     Keyboard.register(Persitence.getBinding(KeyBinding.left), () => {
-      console.log("Left");
       Player.inputMove(-1);
     });
     Keyboard.register(Persitence.getBinding(KeyBinding.right), () => {

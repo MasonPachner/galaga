@@ -42,12 +42,11 @@ export class Wave {
      * Update function for a wave, moves all enemies and does location grid permutations
      */
     public static update(elapsedTime: number) {
-        if (Wave.pause <= 0 && Wave.wave?.groups != undefined) {
+        if (Wave.pause <= 0 && Wave.wave?.groups !== undefined) {
             if (Wave.launchNextGroup) {
                 let launched : boolean = true;
-                for (let enemyI in Wave.wave.groups[Wave.launchedGroup]) {
-                    let enemy = Wave.wave.groups[Wave.launchedGroup][enemyI];
-                    if (enemy.moveState != EnemyMoveState.noUpdate && !enemy.dirty) {
+                for (const enemy of Wave.wave.groups[Wave.launchedGroup]) {
+                    if (enemy.moveState == EnemyMoveState.followingEntrancePath || enemy.moveState == EnemyMoveState.noUpdate && !enemy.dirty) {
                         launched = false;
                     }
                     if (enemy.moveState == EnemyMoveState.noUpdate) {
