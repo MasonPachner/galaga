@@ -5,6 +5,7 @@ import { Utils } from "../systems/utils"
 import { Location } from "../systems/location";
 import { Ship } from "./ship";
 import { EnemyMoveState, EnemyShip } from "./enemy/enemyship";
+import { Bounds, Player } from "./player";
 
 
 export abstract class Projectile {
@@ -19,10 +20,7 @@ export abstract class Projectile {
     public abstract updateLocation(elapsedTime: number): void;
     public abstract handleDirty(): void;
 
-    constructor(){
-        
-    }
-    public get playerDamage() {return this.owner instanceof EnemyShip;}
+    public get playerDamage(): boolean { return this.owner instanceof EnemyShip; }
 }
 
 export class Beam extends Projectile {
@@ -30,9 +28,15 @@ export class Beam extends Projectile {
     public strokeSize: number = 0.002;
     public color: string;
 
-    constructor(public override rotation: number, public override location: Location, public override readonly owner: EnemyShip, public readonly arcSize: number, public readonly group: number){
+    constructor(
+        public override rotation: number, 
+        public override location: Location, 
+        public override readonly owner: EnemyShip, 
+        public readonly arcSize: number, 
+        public readonly group: number,
+    ) {
         super();
-        this.color =  owner.projectiles % 2 == 0 ? "rgba(0,0,255,1)" : "rgba(255,255,255,1)";
+        this.color = owner.projectiles % 2 == 0 ? "rgba(0,0,255,1)" : "rgba(255,255,255,1)";
 
         this.location = {
             x: Math.cos(rotation) * Ship.size + location.x,
@@ -41,7 +45,7 @@ export class Beam extends Projectile {
         this.rotation += Math.PI;
     }
 
-    public collidingWithPlayer(playerLocation: Location, playerSize: number){
+    public collidingWithPlayer(playerLocation: Location, playerSize: number):boolean {
         let COLLISION_POINTS = 10;
         if (this.owner.dirty || this.owner.ownsAShip || this.owner.moveState != EnemyMoveState.tractoring) {
             this.dirty = true;
@@ -49,7 +53,7 @@ export class Beam extends Projectile {
         }
         for (let i = 0; i < COLLISION_POINTS; i++) {
             let arcChange = i * this.arcSize / COLLISION_POINTS;
-            if (Utils.distBetween(playerLocation,
+            if (Utils.distBetweenWithWrapping(playerLocation,
                 {
                     x: this.location.x + Math.cos(this.rotation - (this.arcSize / 2) + arcChange) * this.size,
                     y: this.location.y + Math.sin(this.rotation - (this.arcSize / 2) + arcChange) * this.size,
@@ -70,16 +74,26 @@ export class Beam extends Projectile {
 
     }
 
-    public handleDirty () {
-        //console.log("Beam Hit");
+    public handleDirty() {
     }
+}
+
+export interface DamageRange{
+    left: number;
+    right: number;
 }
 
 export class Bullet extends Projectile {
     public missDist: number = 0;
     public override speed: number;
-    public range?: number;
-    constructor(public override rotation: number, public override location: Location, public override readonly owner: Ship,public override readonly  color: string, public readonly target: Location | undefined) {
+    public readonly damageRange?: DamageRange;
+    constructor(
+        public override rotation: number, 
+        public override location: Location, 
+        public override readonly owner: Ship, 
+        public override readonly color: string, 
+        public readonly target: Location | undefined,
+    ) {
         super()
         this.speed = (this.owner instanceof EnemyShip ? 0.4 : 1) * 0.0007
 
@@ -87,8 +101,15 @@ export class Bullet extends Projectile {
             x: Math.cos(rotation) * Ship.size + location.x,
             y: Math.sin(rotation) * Ship.size + location.y,
         };
-        if (target != undefined) {
-            this.range = Math.tan((this.rotation - Math.PI) - Math.PI / 2);
+        if (this.target !== undefined) {
+            // y\ =\ \arctan\left(-1.6749159119239558\right)\left(x\ -.4476609520877112\right)+0.5285168757928961
+            const slope = Math.tan(this.rotation)
+            const x1 =  (( (Player.playerY + Ship.size) - this.location.y  ) / slope) + this.location.x;
+            const x2 = (( (Player.playerY - Ship.size) - this.location.y ) / slope) + this.location.x;
+            this.damageRange = {
+                left: Math.min(x1, x2),
+                right: Math.max(x1, x2),
+            }
         }
     }
     public updateLocation(elapsedTime: number) {
@@ -118,22 +139,24 @@ export class Projectiles {
     public static renderProjectiles() {
         Projectiles.proj.forEach((e) => {
             if (e instanceof Bullet) {
-                Renderer.drawImage(e.playerDamage ? Assets.playerPro :  Assets.enemyPro,
+                Renderer.drawImage(e.playerDamage ? Assets.playerPro : Assets.enemyPro,
                     e.location.x,
                     e.location.y,
                     e.size, e.size,
-                    e.rotation - Math.PI / 2);
+                    e.rotation - Math.PI / 2,
+                );
                 // if(e.playerDamage)
                 //     MyGame.renderer.drawLine('rgba(255,255,0,1)', e.location.x,
                 //     e.location.y,e.target.x,e.target.y);
-            } else if(e instanceof Beam) {
+            } else if (e instanceof Beam) {
                 Renderer.strokeArc(e.color,
                     e.location.x,
                     e.location.y,
                     e.arcSize,
                     e.strokeSize,
                     e.size,
-                    e.rotation);
+                    e.rotation,
+                );
                 // MyGame.renderer.fillCircle(
                 //     e.location.x,
                 //     e.location.y,

@@ -44,16 +44,16 @@ export class Wave {
     public static update(elapsedTime: number) {
         if (Wave.pause <= 0 && Wave.wave?.groups !== undefined) {
             if (Wave.launchNextGroup) {
-                let launched : boolean = true;
+                let waveIsComplete : boolean = true;
                 for (const enemy of Wave.wave.groups[Wave.launchedGroup]) {
-                    if (enemy.moveState == EnemyMoveState.followingEntrancePath || enemy.moveState == EnemyMoveState.noUpdate && !enemy.dirty) {
-                        launched = false;
+                    if (!enemy.dirty && (enemy.moveState == EnemyMoveState.followingEntrancePath || enemy.moveState == EnemyMoveState.noUpdate)) {
+                        waveIsComplete = false;
                     }
                     if (enemy.moveState == EnemyMoveState.noUpdate) {
                         enemy.moveState = EnemyMoveState.followingEntrancePath;
                     }
                 }
-                if (launched) {
+                if (waveIsComplete) {
                     Wave.launchedGroup++;
                     if (Wave.launchedGroup >= Wave.wave.groups.length) {
                         Wave.launchNextGroup = false;
@@ -83,7 +83,7 @@ export class Wave {
         Wave.waveOffset += elapsedTime;
         for (let i = 0; i < Wave.ROWS; i++) {
             for (let j = 0; j < Wave.COLS; j++) {
-                let power = Utils.distBetween(Wave.waveLoc[i][j], Wave.center) / 1500;
+                let power = Utils.distBetweenWithWrapping(Wave.waveLoc[i][j], Wave.center) / 1500;
 
                 if (Wave.waveOffset > Wave.breath) {
                     if (Wave.waveOffset > Wave.breath * 2 && Wave.wave !== undefined) {

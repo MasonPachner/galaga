@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Keyboard } from '../../systems/input-keyboard';
 import { Renderer } from '../../systems/renderer';
 import { Enemies } from '../../objects/enemies';
@@ -13,22 +13,24 @@ import { ParticleSystem } from '../../systems/particle-system';
 import { ScreenText } from '../../systems/screen-text';
 import { Utils } from '../../systems/utils';
 import { AppRoutes } from '../app/app.routes';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-gameplay',
   standalone: true,
-  imports: [],
+  imports: [RouterModule, CommonModule],
   templateUrl: './gameplay.component.html',
   styleUrl: './gameplay.component.less'
 })
-export class GameplayComponent implements OnInit{
+export class GameplayComponent implements OnInit, OnDestroy {
   private score = 0;
   private level = 0;
-  private attract = false;
   private paused = false;
   private lastTimeStamp = performance.now();
   private forceStop = false;
+
+  protected showOverlay = false;
 
   constructor(private readonly router: Router, private readonly activatedRoute: ActivatedRoute) { }
 
@@ -47,11 +49,10 @@ export class GameplayComponent implements OnInit{
 
   public renderScore() {
     Renderer.strongText("Score: " + this.score, 10, 25, 20, 'rgba(255,255,255,1)', true);
-    Renderer.displayLevel((Wave.level));
+    Renderer.displayLevel(Wave.level);
   }
 
   public update(elapsedTime: number) {
-    // console.log(elapsedTime)
     if (elapsedTime > 1000) {
       console.log("Long frame on");
     }
@@ -101,10 +102,10 @@ export class GameplayComponent implements OnInit{
     this.update(elapsedTime);
     this.render();
     this.lastTimeStamp = time;
-    if (this.attract && Player.isGameOver) {
+    if (Player.attract && Player.isGameOver) {
       setTimeout(() => {
         this.forceStop = true;
-        this.router.navigate([AppRoutes.Game], { queryParams: { "attractMode": this.attract } });
+        this.router.navigate([AppRoutes.Game], { queryParams: { "attractMode": Player.attract } });
       }, 5000);
       return;
     }
@@ -114,33 +115,31 @@ export class GameplayComponent implements OnInit{
     requestAnimationFrame((dt) => this.gameloop(dt));
   }
 
+  public ngOnDestroy() {
+    // window.removeEventListener('mousemove', () => this.returnToMain(), false);
+    window.removeEventListener('mousedown', () => this.returnToMain(), false);
+    window.removeEventListener('keydown', () => this.returnToMain());
+  }
+
   public returnToMain() {
-    window.removeEventListener('mousemove', this.returnToMain, false);
-    window.removeEventListener('mousedown', this.returnToMain, false);
-    window.removeEventListener('keydown', this.returnToMain);
+    if(this.forceStop) return;
     this.forceStop = true;
     this.router.navigate([AppRoutes.MainMenu]);
   }
 
   public ngOnInit() {
-    this.attract = this.activatedRoute.snapshot.queryParams["attractMode"] === 'true';
-    if (this.attract) {
-      window.addEventListener('mousemove', this.returnToMain, false);
-      window.addEventListener('mousedown', this.returnToMain, false);
-      window.addEventListener('keydown', this.returnToMain);
+    Player.attract = this.activatedRoute.snapshot.queryParams["attractMode"] === 'true';
+    if (Player.attract) {
+      // window.addEventListener('mousemove', () => this.returnToMain(), false);
+      window.addEventListener('mousedown', () => this.returnToMain(), false);
+      window.addEventListener('keydown', () => this.returnToMain());
     }
     this.lastTimeStamp = performance.now();
     this.paused = false;
     Keyboard.register(Persitence.getBinding(KeyBinding.pause), () => {
       this.paused = true;
-      if (Player.isGameOver) {
-        GalagaScreen.getElement('id-continue').innerHTML = "Restart";
-      }
-      GalagaScreen.getElement("id-overlay").classList.add('active');
-      GalagaScreen.getElement("id-overlay").style.top = ((Utils.canvas.height - 100) / 2).toString();
-      GalagaScreen.getElement("id-overlay").style.left = ((Utils.canvas.width - 300) / 2).toString();
     });
-    GalagaScreen.getElement('id-continue').innerHTML = "Continue";
+    // GalagaScreen.getElement('id-continue').innerHTML = "Continue";
     Keyboard.register(Persitence.getBinding(KeyBinding.left), () => {
       Player.inputMove(-1);
     });
@@ -162,15 +161,15 @@ export class GameplayComponent implements OnInit{
   public onQuit() {
     this.reset();
     this.forceStop = true;
-    GalagaScreen.getElement("id-overlay").classList.remove('active');
+    // GalagaScreen.getElement("id-overlay").classList.remove('active');
     this.router.navigate([AppRoutes.MainMenu]);
   }
 
-  public onContinue(){
+  public onContinue() {
     this.paused = false;
-    GalagaScreen.getElement("id-overlay").classList.remove('active');
+    // GalagaScreen.getElement("id-overlay").classList.remove('active');
     if (Player.isGameOver) {
-      GalagaScreen.getElement('id-continue').innerHTML = "Restart";
+      // GalagaScreen.getElement('id-continue').innerHTML = "Restart";
       this.forceStop = true;
       this.router.navigate([AppRoutes.Game], { queryParams: { "attractMode": "true" } });
     }

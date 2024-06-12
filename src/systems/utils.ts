@@ -3,39 +3,29 @@ import { Assets } from "./assets";
 import { Location } from "./location";
 
 export class Utils {
-    public static get canvas(): HTMLCanvasElement { return document.getElementById('id-canvas') as HTMLCanvasElement;};
-    private static DIRECTIONS: any = {
-        UP: "UP",
-        DOWN: "DOWN",
-        LEFT: "LEFT", 
-        RIGHT: "RIGHT",
+    public static get canvas(): HTMLCanvasElement | undefined {
+        const element = document.getElementById('id-canvas');
+        return element ? element as HTMLCanvasElement : undefined;
     };
 
-    public static distBetween(loc1: Location, loc2: Location) {
+    public static distBetweenWithWrapping(loc1: Location, loc2: Location) {
         let dx = loc2.x - loc1.x;
         let dy = loc2.y - loc1.y;
-        if (dx > Utils.canvas.width * 0.5) {
-            dx = Utils.canvas.width - dx;
-        }
-        if (dy > Utils.canvas.height * 0.5) {
-            dy = Utils.canvas.height - dy;
+        if (Utils.canvas != undefined) {
+            if (dx > (Utils.canvas.width * 0.5)) {
+                dx = Utils.canvas.width - dx;
+            }
+            if (dy > (Utils.canvas.height * 0.5)) {
+                dy = Utils.canvas.height - dy;
+            }
         }
         return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
-    public static wrapLocation(location: Location) {
-        if (location.x < -5) {
-            location.x = Utils.canvas.width;
-        }
-        if (location.y < -5) {
-            location.y = Utils.canvas.height;
-        }
-        if (location.x >= Utils.canvas.width + 5) {
-            location.x = 0;
-        }
-        if (location.y >= Utils.canvas.height + 5) {
-            location.y = 0;
-        }
+    public static distBetween(loc1: Location, loc2: Location) {
+        let dx = loc2.x - loc1.x;
+        let dy = loc2.y - loc1.y;
+        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
     public static angleBetween(loc1: Location, loc2: Location) {
@@ -60,30 +50,6 @@ export class Utils {
         int = Math.min(int, limit);
         int = Math.max(int, -limit);
         return int;
-    }
-
-    public static pickStartLocation(direction: number) {
-        let options = [Math.cos(direction) > 0 ? Utils.DIRECTIONS.LEFT : Utils.DIRECTIONS.RIGHT, Math.sin(direction) > 0 ? Utils.DIRECTIONS.DOWN : Utils.DIRECTIONS.UP];
-        let side = options[Math.floor(Math.random() * options.length)];
-        let x = -1;
-        let y = -1;
-        if (side == Utils.DIRECTIONS.RIGHT) {
-            x = Utils.canvas.width;
-            y = Math.random() * Utils.canvas.height;
-        } else if (side == Utils.DIRECTIONS.LEFT) {
-            x = 0;
-            y = Math.random() * Utils.canvas.height;
-        } else if (side == Utils.DIRECTIONS.DOWN) {
-            x = Math.random() * Utils.canvas.width;
-            y = Utils.canvas.height;
-        } else { //UP
-            x = Math.random() * Utils.canvas.width;
-            y = 0;
-        }
-        return {
-            x: x,
-            y: y
-        };
     }
 
     //https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
@@ -118,7 +84,7 @@ export class Utils {
     public static closestObjectDistance(loc1: Location, list: Ship[]) {
         let closest = Infinity;
         list.forEach(element => {
-            closest = Math.min(closest, Utils.distBetween(loc1, element.location));
+            closest = Math.min(closest, Utils.distBetweenWithWrapping(loc1, element.location));
         });
         return closest;
     }

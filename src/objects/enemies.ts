@@ -134,7 +134,7 @@ export class Enemies {
             enemy.rotation = Utils.angleBetween(Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x], enemy.location);
             enemy.location.x += Math.cos(enemy.rotation - Math.PI) * elapsedTime * 0.0002;
             enemy.location.y += Math.sin(enemy.rotation - Math.PI) * elapsedTime * 0.0002;
-            if (Utils.distBetween(enemy.location, Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x]) < Ship.size / 2) {
+            if (Utils.distBetweenWithWrapping(enemy.location, Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x]) < Ship.size / 2) {
                 enemy.location.x = Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x].x;
                 enemy.location.y = Wave.waveLoc[enemy.formationLocation.y][enemy.formationLocation.x].y;
                 enemy.moveState = EnemyMoveState.alignInFormation;
@@ -222,7 +222,7 @@ export class Enemies {
             y: enemy.owner.location.y - Ship.size - Ship.size * 1.5
         };
         let moveRotation = Utils.angleBetween(enemy.location, locToBe);
-        if (Utils.distBetween(enemy.location, locToBe) < Ship.size / 2) {
+        if (Utils.distBetweenWithWrapping(enemy.location, locToBe) < Ship.size / 2) {
             enemy.location.x = locToBe.x;
             enemy.location.y = locToBe.y;
         } else {

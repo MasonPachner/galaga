@@ -3,27 +3,38 @@ import { Utils } from "./utils";
 import { Location } from "../systems/location";
 
 export class Renderer {
-    private static get context(){return Utils.canvas.getContext('2d')!};
-    public static scaleS() {
-        return Math.max(Utils.canvas.width, Utils.canvas.height);
-    }
-    public static scaleL() {
+    private static get context(){
+        return Utils.canvas?.getContext('2d') ?? undefined;
+    };
+    public static scaleL() :number{
+        if(Utils.canvas == undefined){
+            return 1;
+        }
         return Math.max(Utils.canvas.width, Utils.canvas.height);
     }
     public static fillCircle(x: number, y: number, radius: number, color: string): void {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
         Renderer.context.beginPath();
         Renderer.context.fillStyle = color;
-        Renderer.context.arc(x * Utils.canvas.width, y * Utils.canvas.height, radius * Renderer.scaleS(), 0, 2 * Math.PI, false);
+        Renderer.context.arc(x * Utils.canvas.width, y * Utils.canvas.height, radius * Renderer.scaleL(), 0, 2 * Math.PI, false);
         Renderer.context.fill();
     }
 
     public static clear() {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
         Renderer.context.clearRect(0, 0, Utils.canvas.width, Utils.canvas.height);
         Utils.canvas.width = window.innerWidth;
         Utils.canvas.height = window.innerHeight;
     }
 
     public static strokeArc(color: string, x: number, y: number, arcSize: number, strokeWidth: number, radius: number, direction: number): void {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
         Renderer.context.beginPath();
         Renderer.context.strokeStyle = color;
         Renderer.context.lineWidth = Math.max(Math.floor(strokeWidth * Renderer.scaleL()), 1);
@@ -31,6 +42,9 @@ export class Renderer {
         Renderer.context.stroke();
     }
     public static fillPath(lines: {p1: Location, p2: Location}[], color: string) {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
         Renderer.context.save();
         Renderer.context.beginPath();
         //context.strokeStyle = 'rgba(0,0,0,1)';
@@ -49,6 +63,9 @@ export class Renderer {
     }
 
     public static drawImage(image: string, x: number, y: number, width: number, height: number, rotation: number): void {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
         Renderer.context.save();
         Renderer.context.translate(x * Utils.canvas.width, y * Utils.canvas.height);
         Renderer.context.rotate(rotation);
@@ -66,6 +83,9 @@ export class Renderer {
         Renderer.context.restore();
     }
     public static drawImageRaw(image: string, x: number, y: number, width: number, height: number): void {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
         Renderer.context.drawImage(Assets.images.get(image)!, x * Utils.canvas.width, y * Utils.canvas.height, width * Utils.canvas.width, height * Utils.canvas.height);
     }
 
@@ -89,11 +109,17 @@ export class Renderer {
     }
 
     public static fillRect(x: number, y: number, width: number, height: number, color: string) {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
         Renderer.context.fillStyle = color;
         Renderer.context.fillRect(x * Utils.canvas.width, y * Utils.canvas.height, width, height);
     }
 
     public static strongText(string: string, x: number, y: number, fontsize: string | number, color: string, black: boolean = false) {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
         Renderer.context.fillStyle = color;
         Renderer.context.lineWidth = 1;
         Renderer.context.strokeStyle = black ? 'rgba(0,0,0,1)' : 'rgba(255,255,255,1)';
@@ -103,6 +129,10 @@ export class Renderer {
     }
 
     public static drawLine(color: string, p1x: number, p1y: number, p2x: number, p2y: number) {
+        if(Utils.canvas == undefined || Renderer.context == undefined){
+            return;
+        }
+
         Renderer.context.beginPath();
         Renderer.context.lineWidth = 20;
         Renderer.context.strokeStyle = color;

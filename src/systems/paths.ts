@@ -1,3 +1,5 @@
+import { Player } from "../objects/player";
+import { Ship } from "../objects/ship";
 import { Location } from "./location";
 import { Utils } from "./utils";
 
@@ -528,6 +530,7 @@ export class Path {
     public static readonly challengeLeftZag = Path.challengeZigZag(Direction.left);
     public static readonly challengeRightZag = Path.challengeZigZag(Direction.right);
 
+    private static readonly ratio = 1.5;
     public static readonly typedBeziers = new Map<PathType, TypedBezier[]>([
         [PathType.alt,
         [{
@@ -557,9 +560,9 @@ export class Path {
         },]],
         [PathType.double, [
             ...[
-                Path.challengeLeftLoop.splitPath(0.01), Path.challengeRightLoop.splitPath(0.01),
-                Path.challengeLeftSweep.splitPath(0.01), Path.challengeRightSweep.splitPath(0.01),
-                Path.challengeLeftZag.splitPath(0.01), Path.challengeRightZag.splitPath(0.01),
+                Path.challengeLeftLoop.splitPath(Ship.size*Path.ratio), Path.challengeRightLoop.splitPath(Ship.size*Path.ratio),
+                Path.challengeLeftSweep.splitPath(Ship.size*Path.ratio), Path.challengeRightSweep.splitPath(Ship.size*Path.ratio),
+                Path.challengeLeftZag.splitPath(Ship.size*Path.ratio), Path.challengeRightZag.splitPath(Ship.size*Path.ratio),
             ].map((path) => {
                 return {
                     curves: path,
@@ -568,7 +571,10 @@ export class Path {
                 };
             }),
             ...[
-                Path.topLeftSweep.splitPath(0.01), Path.topRightSweep.splitPath(0.01), Path.bottomRightLoop.splitPath(0.01), Path.bottomLeftLoop.splitPath(0.01),
+                Path.topLeftSweep.splitPath(Ship.size*Path.ratio), 
+                Path.topRightSweep.splitPath(Ship.size*Path.ratio), 
+                Path.bottomRightLoop.splitPath(Ship.size*Path.ratio), 
+                Path.bottomLeftLoop.splitPath(Ship.size*Path.ratio),
             ].map((path) => {
                 return {
                     curves: path,

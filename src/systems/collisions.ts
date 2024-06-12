@@ -19,7 +19,7 @@ export class Collisions {
             for (let pI in Projectiles.proj) {
                 let pro = Projectiles.proj[pI];
                 if (pro.playerDamage) continue;
-                if (Utils.distBetween(enemy.location, pro.location) <= pro.size + Ship.size && (enemy.moveState != EnemyMoveState.spinning)) {
+                if (Utils.distBetweenWithWrapping(enemy.location, pro.location) <= pro.size + Ship.size && (enemy.moveState != EnemyMoveState.spinning)) {
                     pro.dirty = true;
                     enemy.setDirty(true);
                     Player.waveHits += 1;
@@ -49,11 +49,10 @@ export class Collisions {
                     }
                 }
             }
-            for (let playerI in Player.players) {
-                let nextP = Player.players[playerI];
-                if (Utils.distBetween(nextP.location, enemy.location) <= Ship.size + Ship.size) {
-                    if (nextP.spawnProtection < 0 && (nextP.moveState == PlayerMoveState.playerControl || nextP.moveState == PlayerMoveState.returnToPlayer)) {
-                        nextP.setDirty();
+            for (const player of Player.players) {
+                if (Utils.distBetweenWithWrapping(player.location, enemy.location) <= Ship.size + Ship.size) {
+                    if (player.spawnProtection < 0 && (player.moveState == PlayerMoveState.playerControl || player.moveState == PlayerMoveState.returnToPlayer)) {
+                        player.setDirty();
                         Utils.burstPlay(Assets.playerExplosion, 0.3);
                         if (Player.players.length == 1)
                             Enemies.canAttack = false;
@@ -79,7 +78,7 @@ export class Collisions {
                         };
                     }
                 } else {
-                    if (pro.playerDamage && nextP.spawnProtection < 0 && Utils.distBetween(nextP.location, pro.location) <= pro.size + Ship.size) {
+                    if (pro.playerDamage && nextP.spawnProtection < 0 && Utils.distBetweenWithWrapping(nextP.location, pro.location) <= pro.size + Ship.size) {
                         pro.dirty = true;
                         nextP.setDirty();
                         Utils.burstPlay(Assets.playerExplosion, 0.3);

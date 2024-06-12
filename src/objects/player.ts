@@ -16,12 +16,12 @@ export interface Bounds {
     u: number,
     loc: number,
     distance: number,
+    isCollide?: boolean,
 }
 
 export class Player {
-
     public static playerY: number = 0.90;
-    public static lives = 2;
+    public static lives = 3;
     public static playerImage = Assets.fighter;
     public static players: PlayerShip[] = [];
     public static newLife = false;
@@ -42,12 +42,12 @@ export class Player {
 
 
     public static inputMove(num: number) {
-        if (!Player.attract){
+        if (!Player.attract) {
             Player.thrust.push(num);
         }
     }
     public static inputShoot() {
-        if (!Player.attract){
+        if (!Player.attract) {
             Player.fireMissile();
         }
     }
@@ -106,21 +106,24 @@ export class Player {
         //Calculate bad zones - projectiles
         for (let proI in Projectiles.proj) {
             let pro = Projectiles.proj[proI];
-            if (pro.playerDamage && (pro.location.y < (Player.playerY + Ship.size * 2))) {
+            if (pro.playerDamage && (pro.location.y < (Player.playerY + Ship.size * 6))) {
                 if (pro instanceof Bullet) {
-                    if(pro.target && pro.range){
+                    if (pro.target && pro.damageRange) {
+                        const safetyBonus = (Ship.size *1.5);
                         Player.bounds.push({
-                            l: pro.target.x - (Math.abs(pro.range) + Ship.size * 1.5),
-                            u: pro.target.x + Math.abs(pro.range) + Ship.size * 1.5,
+                            l: pro.damageRange.left - safetyBonus*2,
+                            u: pro.damageRange.right + safetyBonus*2,
                             loc: pro.target.x,
-                            distance: Math.abs(pro.location.y - Player.playerY)
+                            distance: Utils.distBetween(pro.location, Player.players[0].location),
+                            isCollide: pro.location.y > (Player.playerY - safetyBonus) && pro.location.y < (Player.playerY + safetyBonus )
                         });
                     }
-                } else if (pro instanceof Beam){
+                } else if (pro instanceof Beam) {
                     let diff = Math.abs(Math.cos(pro.rotation - (pro.arcSize / 2)) * pro.size);
+                    const safetyBonus = (diff + Ship.size * 2.5);
                     Player.bounds.push({
-                        l: pro.location.x - diff - Ship.size * 2.5,
-                        u: pro.location.x + diff + Ship.size * 2.5,
+                        l: pro.location.x - safetyBonus,
+                        u: pro.location.x + safetyBonus,
                         loc: pro.location.x,
                         distance: Math.abs(Player.playerY - (pro.location.y + pro.size))
                     });
@@ -132,25 +135,25 @@ export class Player {
         for (let enemyI in Enemies.enemies) {
             let enemy = Enemies.enemies[enemyI];
             if (enemy.location.y > 0.6 && (enemy.moveState == EnemyMoveState.followingAttackPath || enemy.moveState == EnemyMoveState.tractoring)) { // Don't get hit by badguys
+                const safetyBonus = (Ship.size * 2.5);
                 Player.bounds.push({
-                    l: enemy.location.x - (Ship.size + Ship.size * 2.5),
-                    u: enemy.location.x + Ship.size + Ship.size * 2.5,
+                    l: enemy.location.x - safetyBonus,
+                    u: enemy.location.x + safetyBonus,
                     loc: enemy.location.x,
-                    distance: Math.abs(Player.players[0].location.y - enemy.location.y) / 2
+                    distance: Utils.distBetween(enemy.location, Player.players[0].location),
                 });
             }
 
         }
 
+        Player.safeX = 0.5;
         // Find an enemy to attack
-        if (Enemies.enemies.length == 0) { //Nobody to shoot
-            Player.safeX = 0.5;
-        } else {
+        if (Enemies.enemies.length > 0) {
             if (Player.target == undefined || Player.target.dirty) {
                 Player.lastLoc = undefined;
                 Player.target = Enemies.enemies[Math.floor(Math.random() * Enemies.enemies.length)];
             }
-            if ((Player.target?.location.y?? 0) > 2) {
+            if ((Player.target?.location.y ?? 0) > 2) {
                 Player.target = undefined;
                 Player.lastLoc = undefined;
             } else {
@@ -166,52 +169,36 @@ export class Player {
                 x: Player.target.location.x,
                 y: Player.target.location.y,
             };
-            //dontBounce = 400;
         } else {
             Player.dontBounce -= elapsedTime;
         }
 
-        if (Player.bounds.length > 0) {
-            let best = 1;
-            let bestLoc = Player.safeX;
-            let low = 0;
-            let high = 1;
-            let lowDanger = 0;
-            let highDanger = 0;
-            for (let badI in Player.bounds) {
-                let bad = Player.bounds[badI];
-                if (bad.l < 0.001 || (bad.distance < Ship.size * 3 && bad.loc < Player.players[0].location.x)) {
-                    bad.l = -1;
-                }
-                if (bad.u > 0.999 || (bad.distance < Ship.size * 3 && bad.loc >= Player.players[0].location.x)) {
-                    bad.u = 2;
-                }
-                if (bad.distance < Ship.size * 2 && bestLoc < bad.u && bestLoc > bad.l) {
-                    let distLo = Math.abs(Player.players[0].location.x - bad.l);
-                    let distHi = Math.abs(Player.players[0].location.x - bad.u);
-                    if (distLo < best && bad.l >= low) {
-                        best = distLo;
-                        bestLoc = bad.l;
-                        if (high > bad.l) {
-                            high = bad.l;
-                            if (bad.distance > highDanger)
-                                highDanger = bad.distance;
-                        }
-                    }
-                    if (distHi < best && bad.u <= high) {
-                        best = distHi;
-                        bestLoc = bad.u;
-                        if (low < bad.u) {
-                            low = bad.u;
-                            if (bad.distance > lowDanger)
-                                lowDanger = bad.distance;
-                        }
-                    }
+        const immediate = Player.bounds.filter((a) => (a.distance < Ship.size * 5) || a.isCollide);
+        if (immediate.length > 0) {
+            console.log("Immediate collision detected");
+            const playerX = Player.players[0].location.x;
+            const aggregate = immediate.reduce((total: Bounds, num: Bounds) => {
+                return {
+                    l: Math.min(total.l, num.l),
+                    u: Math.max(total.u, num.u),
+                    loc: num.loc,
+                    distance: Math.min(total.distance, num.distance),
+                    isCollide: total.isCollide || num.isCollide,
+                };
+            });
+            if (aggregate !== undefined) {
+                // Try to cross is there isn't something in the way
+                const projectIsRightOfShip = ((aggregate.u-aggregate.l)/2) - playerX > 0;
+                if (projectIsRightOfShip) {
+                    Player.safeX = aggregate.isCollide ? aggregate.u : aggregate.l;
+                } else {
+                    Player.safeX = aggregate.isCollide ? aggregate.l : aggregate.u;
                 }
             }
-            Player.safeX = bestLoc;
-            if (low >= high) { // Probs gonna die. Try to run away
-                Player.safeX = lowDanger < highDanger ? 0 : 1; //smaller number = more danger
+            console.log("playerx:", playerX,"SafeX", Player.safeX, "low:", aggregate.l, "high:", aggregate.u, "collide:", aggregate.isCollide);
+            if(aggregate.isCollide){
+
+                debugger;
             }
         }
         // if projectile.line intersection w/ playerMove spot, move
@@ -261,7 +248,7 @@ export class Player {
                 };
                 player.rotation = Math.PI / 2;
             }
-            if (Utils.distBetween(player.location, player.beamData.location) < Ship.size || player.location.y > Player.playerY) {
+            if (Utils.distBetweenWithWrapping(player.location, player.beamData.location) < Ship.size || player.location.y > Player.playerY) {
                 player.location.x = player.beamData.location.x;
                 player.location.y = player.beamData.location.y;
                 if (!player.beamData.owner.dirty) { // Tracted!
@@ -307,16 +294,14 @@ export class Player {
             let rotation = Utils.angleBetween(player.location, togo);
             player.location.x += Math.cos(rotation) * elapsedTime / 7000;
             player.location.y += Math.sin(rotation) * elapsedTime / 7000;
-            if (Utils.distBetween(player.location, togo) < Ship.size / 2 || player.location.y > Player.playerY) {
+            if (Utils.distBetweenWithWrapping(player.location, togo) < Ship.size / 2 || player.location.y > Player.playerY) {
                 player.location.x = togo.x;
                 player.location.y = togo.y;
                 player.moveState = PlayerMoveState.playerControl;
             }
         } else if (player.moveState == PlayerMoveState.moveToSpot) { // move to the playerMove spot
             let index = Player.getPlayerIndex(player);
-            if (Math.abs(Player.players[0].location.x - Player.safeX) < Ship.size / 2) {
-                player.location.x = Player.safeX + (2 * Ship.size) * (index);
-            } else if (index == 0) {
+            if (index == 0) {
                 player.location.x += ((player.location.x > Player.safeX ? -elapsedTime : elapsedTime) / 1000);
             } else {
                 player.location.x = Player.players[index - 1].location.x + (2 * Ship.size + 5);
@@ -341,7 +326,7 @@ export class Player {
         let size = 0.02;
         for (let i = 0; i < Player.lives; i++) {
             Renderer.drawImageRaw(Player.playerImage, ((size) * i), 1 - size, size, size);
-            if (Player.newLife && i == Player.lives - 1) {
+            if (Player.newLife && i == (Player.lives - 1)) {
                 Player.newLife = false;
                 ParticleSystem.lifeGained(((size * 1.5) * i), 1 - size);
                 ScreenText.addText("1UP", 0.5, 0.1, 30, 3000, 'rgba(0,255,100,1)');
@@ -366,7 +351,7 @@ export class Player {
     public static fireMissile() {
         for (let playerI in Player.players) {
             let player = Player.players[playerI];
-            if (player.projectiles > 0 && player.projectileQueue && 
+            if (player.projectiles > 0 && player.projectileQueue &&
                 (player.moveState == PlayerMoveState.playerControl || player.moveState == PlayerMoveState.moveToSpot)) {
                 Utils.burstPlay(Assets.playerLaser, 0.4);
                 player.projectileQueue = false;
@@ -385,7 +370,7 @@ export class Player {
         Player.shots++;
     }
 
-    public static updateAccuracy():number {
+    public static updateAccuracy(): number {
         let temp = Player.waveHits;
         Player.waveHits = 0;
         return temp;
