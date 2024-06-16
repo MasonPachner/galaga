@@ -1,10 +1,6 @@
 
 <canvas id="id-canvas"></canvas>
-<ul *ngIf="showOverlay" id="id-overlay" class="overlay">
-    <li>
-        <button id="id-continue">Continue</button>
-    </li>
-    <li>
-        <button id="id-quit">Quit</button>
-    </li>
-</ul>
+<div *ngIf="showOverlay" class="overlay">
+    <galaga-button (onClick)="onContinue()" [text]="getContinuePhrase()"></galaga-button>
+    <galaga-button (onClick)="onQuit()" [text]="'Quit'"></galaga-button>
+</div>
